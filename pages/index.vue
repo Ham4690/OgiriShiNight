@@ -66,7 +66,9 @@ export default {
     }
   },
   mounted() {
-    // firebase.auth().onAuthStateChanged((user) => (this.isAuth = !!user))
+    firebase.auth().onAuthStateChanged((user) => (this.isAuth = !!user))
+  },
+  created() {
     if (localStorage.getItem('accessToken')) {
       const uid = localStorage.getItem('uid')
       firestore
@@ -96,6 +98,7 @@ export default {
         .auth()
         .signInWithPopup(authUI)
         .then((result) => {
+          this.isAuth = true
           localStorage.setItem('accessToken', result.credential.accessToken)
           localStorage.setItem('uid', result.user.uid)
           this.user = {
