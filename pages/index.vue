@@ -66,7 +66,27 @@ export default {
     }
   },
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => (this.isAuth = !!user))
+    // firebase.auth().onAuthStateChanged((user) => (this.isAuth = !!user))
+    if (localStorage.getItem('accessToken')) {
+      const uid = localStorage.getItem('uid')
+      firestore
+        .collection('users')
+        .doc(uid)
+        .get()
+        .then((doc) => {
+          if (doc.exists) {
+            console.log('Document data:', doc.data())
+            this.user = doc.data()
+            this.isAuth = true
+          } else {
+            // doc.data() will be undefined in this case
+            console.log('No such document!')
+          }
+        })
+        .catch((error) => {
+          console.log('Error getting document:', error)
+        })
+    }
   },
   methods: {
     googleAuth() {
@@ -77,6 +97,7 @@ export default {
         .signInWithPopup(authUI)
         .then((result) => {
           localStorage.setItem('accessToken', result.credential.accessToken)
+          localStorage.setItem('uid', result.user.uid)
           this.user = {
             uid: result.user.uid,
             displayName: result.user.displayName,
@@ -103,6 +124,7 @@ export default {
     signOut() {
       firebase.auth().signOut()
       localStorage.removeItem('accessToken')
+      localStorage.removeItem('uid')
     },
   },
 }
