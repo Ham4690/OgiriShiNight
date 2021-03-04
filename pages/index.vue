@@ -41,6 +41,10 @@
           signIn
         </button>
       </div>
+
+      <div v-if="isAuth" class="btn">
+        <nuxt-link v-if="isAuth" to="/answer">play</nuxt-link>
+      </div>
       <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
       <h3 v-else>Who are you?</h3>
     </div>
