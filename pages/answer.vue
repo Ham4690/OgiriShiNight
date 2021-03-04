@@ -3,9 +3,8 @@
     <div v-if="done == false">
       <span>
         <!-- {{ randTheme.theme }} -->
-        {{ themes }}
-        {{ theme }}
-        {{ selectThemeNum }}
+        <!-- {{ themes }} -->
+        {{ randomTheme }}
       </span>
       <input v-model="answer" />
       <button @click="toggle">決定</button>
@@ -23,8 +22,6 @@
 export default {
   data() {
     return {
-      selectThemeNum: 0,
-      theme: '',
       answer: '',
       done: false,
       themeMaxNum: 3,
@@ -34,12 +31,15 @@ export default {
     themes() {
       return this.$store.state.answer.themes
     },
+    randomTheme() {
+      const num = Math.floor(Math.random() * this.themeMaxNum)
+      const theme = this.$store.state.answer.themes
+      return theme[num]
+    },
   },
   created() {
-    const num = Math.floor(Math.random() * this.themeMaxNum)
-    this.$store.dispatch('answer/init')
-    this.selectThemeNum = num
-    this.theme = this.$store.dispatch('answer/fetchTheme', num)
+    // this.$store.dispatch('answer/init')
+    this.$store.dispatch('answer/fetchThemes')
   },
   methods: {
     toggle() {
