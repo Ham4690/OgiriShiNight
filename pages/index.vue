@@ -2,8 +2,14 @@
 <template>
   <div class="container">
     <div>
-      <Logo />
       <h1 class="title">ogiri-shi-night</h1>
+
+      <div v-if="isAuth">
+        <nuxt-link v-if="isAuth" to="/answer" class="anslink">
+          <b-button variant="outline-danger"> play </b-button>
+        </nuxt-link>
+      </div>
+
       <div class="links">
         <a
           href="https://nuxtjs.org/"
@@ -42,11 +48,6 @@
         </button>
       </div>
 
-      <div v-if="isAuth" class="btn">
-        <b-button variant="danger">
-          <nuxt-link v-if="isAuth" to="/answer">play</nuxt-link>
-        </b-button>
-      </div>
       <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
       <h3 v-else>Who are you?</h3>
     </div>
@@ -169,5 +170,10 @@ export default {
 
 .links {
   padding-top: 15px;
+}
+
+/* answerページへのリンク  */
+.anslink {
+  color: #35495e;
 }
 </style>

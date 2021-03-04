@@ -3,6 +3,7 @@
     <div v-if="done == false">
       <span>
         <!-- {{ randTheme.theme }} -->
+        {{ themes }}
         {{ theme }}
         {{ selectThemeNum }}
       </span>
