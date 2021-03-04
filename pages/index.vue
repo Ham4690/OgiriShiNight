@@ -43,7 +43,9 @@
       </div>
 
       <div v-if="isAuth" class="btn">
-        <nuxt-link v-if="isAuth" to="/answer">play</nuxt-link>
+        <b-button variant="danger">
+          <nuxt-link v-if="isAuth" to="/answer">play</nuxt-link>
+        </b-button>
       </div>
       <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
       <h3 v-else>Who are you?</h3>
