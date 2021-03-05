@@ -10,43 +10,25 @@
         </nuxt-link>
       </div>
 
-      <div class="links">
-        <a
-          href="https://nuxtjs.org/"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-        >
-          Documentation
-        </a>
-        <a
-          href="https://github.com/nuxt/nuxt.js"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-        >
-          GitHub
-        </a>
-        <button
-          v-if="isAuth"
-          href=""
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--grey"
-          @click="signOut"
-        >
-          signOut
-        </button>
-        <button
-          v-else
-          target="_blank"
-          rel="noopener noreferrer"
-          class="button--green"
-          @click="googleAuth"
-        >
-          signIn
-        </button>
-      </div>
+      <button
+        v-if="isAuth"
+        href=""
+        target="_blank"
+        rel="noopener noreferrer"
+        class="button--grey"
+        @click="signOut"
+      >
+        signOut
+      </button>
+      <button
+        v-else
+        target="_blank"
+        rel="noopener noreferrer"
+        class="button--green"
+        @click="googleAuth"
+      >
+        signIn
+      </button>
 
       <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
       <h3 v-else>Who are you?</h3>
@@ -168,12 +150,13 @@ export default {
   padding-bottom: 15px;
 }
 
-.links {
+button {
   padding-top: 15px;
 }
 
 /* answerページへのリンク  */
 .anslink {
+  margin-bottom: 15px;
   color: #35495e;
 }
 </style>
