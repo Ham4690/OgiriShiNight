@@ -27,20 +27,23 @@
         target="_blank"
         rel="noopener noreferrer"
         class="button--green"
-        @click="googleAuth"
+        @click="signInWithGoogle"
       >
         signIn
       </button>
-      <img
-        border="0"
-        :src="user.photoURL"
-        width="128"
-        height="128"
-        alt="icon"
-      />
 
       <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
       <h3 v-else>Who are you?</h3>
+      <template v-if="user.photoURL">
+        <img
+          style="border-radius: 50%"
+          border="0"
+          :src="user.photoURL"
+          width="50"
+          height="50"
+          alt="icon"
+        />
+      </template>
 
       <div>
         <b-button @click="$bvModal.show('modal-scoped1')">部屋を作る</b-button>
@@ -68,101 +71,39 @@
           </template>
         </b-modal>
       </div>
-      <p>{{ value }}</p>
     </div>
   </div>
 </template>
 
 <script>
-import firebase from 'firebase'
 import { mapGetters } from 'vuex'
-import { firestore } from '~/plugins/firebase.js'
 
 export default {
   name: 'HomePage',
   components: {},
   data() {
     return {
-      isAuth: false,
-      user: {
-        uid: '',
-        displayName: '',
-        photoURL: '',
-      },
       roomId: '',
     }
   },
   computed: {
-    ...mapGetters({ value: 'login/value' }),
+    ...mapGetters({
+      user: 'login/user',
+      isAuth: 'login/isAuth',
+    }),
   },
   mounted() {
-    firebase.auth().onAuthStateChanged((user) => (this.isAuth = !!user))
+    this.$store.dispatch('login/isSignedIn')
   },
   created() {
-    if (localStorage.getItem('accessToken')) {
-      const userid = localStorage.getItem('uid')
-      firestore
-        .collection('users')
-        .doc(userid)
-        .get()
-        .then((doc) => {
-          if (doc.exists) {
-            const uidData = doc.data()
-            this.user = {
-              uid: userid,
-              displayName: uidData.displayName,
-              photoURL: uidData.photoURL,
-            }
-            this.isAuth = true
-          } else {
-            // doc.data() will be undefined in this case
-            console.log('No such document!')
-          }
-        })
-        .catch((error) => {
-          console.log('Error getting document:', error)
-        })
-    }
+    this.$store.dispatch('login/signedInPreviously')
   },
   methods: {
-    googleAuth() {
-      const authUI = new firebase.auth.GoogleAuthProvider()
-      // This gives you a the Google OAuth 1.0 Access Token and Secret.
-      firebase
-        .auth()
-        .signInWithPopup(authUI)
-        .then((result) => {
-          this.isAuth = true
-          localStorage.setItem('accessToken', result.credential.accessToken)
-          localStorage.setItem('uid', result.user.uid)
-          this.user = {
-            uid: result.user.uid,
-            displayName: result.user.displayName,
-            photoURL: result.user.photoURL,
-          }
-          console.log(this.user.photoURL)
-          const userStore = firestore.collection('users').doc(result.user.uid)
-          userStore
-            .set({
-              displayName: result.user.displayName,
-              photoURL: result.user.photoURL,
-            })
-            .then(() => {
-              console.log('Document successfully written!')
-            })
-            .catch((error) => {
-              console.error('Error writing document: ', error)
-            })
-          console.log('firestoreに保存したにゃ')
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+    signInWithGoogle() {
+      this.$store.dispatch('login/signInWithGoogle')
     },
     signOut() {
-      firebase.auth().signOut()
-      localStorage.removeItem('accessToken')
-      localStorage.removeItem('uid')
+      this.$store.dispatch('login/signOut')
     },
   },
 }
