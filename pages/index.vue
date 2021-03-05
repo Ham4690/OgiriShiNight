@@ -31,9 +31,43 @@
       >
         signIn
       </button>
+      <img
+        border="0"
+        :src="user.photoURL"
+        width="128"
+        height="128"
+        alt="icon"
+      />
 
       <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
       <h3 v-else>Who are you?</h3>
+
+      <div>
+        <b-button @click="$bvModal.show('modal-scoped1')">部屋を作る</b-button>
+        <b-modal id="modal-scoped1">
+          <p class="my-4">部屋番号を入力するにゃ</p>
+          <input v-model="roomId" placeholder="部屋番号" />
+
+          <template #modal-footer="{ cancel }">
+            <b-button size="sm" variant="danger" to="/answer"> 作成 </b-button>
+            <b-button size="sm" variant="danger" @click="cancel()">
+              Cancel
+            </b-button>
+          </template>
+        </b-modal>
+        <b-button @click="$bvModal.show('modal-scoped2')">部屋に入る</b-button>
+        <b-modal id="modal-scoped2">
+          <p class="my-4">部屋番号を入力するにゃ</p>
+          <input v-model="roomId" placeholder="部屋番号" />
+
+          <template #modal-footer="{ cancel }">
+            <b-button size="sm" variant="danger" to="/answer"> 入室 </b-button>
+            <b-button size="sm" variant="danger" @click="cancel()">
+              Cancel
+            </b-button>
+          </template>
+        </b-modal>
+      </div>
     </div>
   </div>
 </template>
@@ -54,6 +88,7 @@ export default {
         displayName: '',
         photoURL: '',
       },
+      roomId: '',
     }
   },
   mounted() {
@@ -61,15 +96,19 @@ export default {
   },
   created() {
     if (localStorage.getItem('accessToken')) {
-      const uid = localStorage.getItem('uid')
+      const userid = localStorage.getItem('uid')
       firestore
         .collection('users')
-        .doc(uid)
+        .doc(userid)
         .get()
         .then((doc) => {
           if (doc.exists) {
-            console.log('Document data:', doc.data())
-            this.user = doc.data()
+            const uidData = doc.data()
+            this.user = {
+              uid: userid,
+              displayName: uidData.displayName,
+              photoURL: uidData.photoURL,
+            }
             this.isAuth = true
           } else {
             // doc.data() will be undefined in this case
@@ -97,11 +136,12 @@ export default {
             displayName: result.user.displayName,
             photoURL: result.user.photoURL,
           }
+          console.log(this.user.photoURL)
           const userStore = firestore.collection('users').doc(result.user.uid)
           userStore
             .set({
               displayName: result.user.displayName,
-              photURL: result.user.photoURL,
+              photoURL: result.user.photoURL,
             })
             .then(() => {
               console.log('Document successfully written!')
