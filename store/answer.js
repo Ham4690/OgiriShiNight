@@ -3,25 +3,30 @@ import firebase from '@/plugins/firebase'
 
 const db = firebase.firestore()
 const themesRef = db.collection('themes')
+const themeNum = 4
 
 export const state = () => ({
   themes: [],
+  theme: [],
+  themeName: '',
+  themeId: 0,
 })
 
 export const mutations = {
   addTheme(state, theme) {
-    state.themes.push(theme)
+    state.theme.push(theme)
+  },
+  setThemeName(state, themeName) {
+    console.log(`setThemeName${themeName}`)
+    state.themeName = themeName
+  },
+  setThemeId(state, themeId) {
+    console.log(`setThemeId${themeId}`)
+    state.themeId = themeId
   },
 }
 
 export const actions = {
-  // init: firestoreAction(({ bindFirestoreRef }) => {
-  //   bindFirestoreRef('themes', themesRef)
-  // }),
-  // fetchTheme: ({ state }, id) => {
-  //   console.log(state.themes)
-  //   return state.themes[id]
-  // },
   fetchThemes({ commit }) {
     themesRef
       .get()
@@ -29,6 +34,28 @@ export const actions = {
         res.forEach((doc) => {
           console.log('success : ' + `${doc.id} => ${doc.data()}`)
           commit('addTheme', doc.data())
+        })
+      })
+      .catch((error) => {
+        console.log('error : ' + error)
+      })
+  },
+  fetchRandomTheme({ commit }) {
+    const randNum = Math.floor(Math.random() * themeNum)
+    console.log('randNum')
+    console.log(randNum)
+    themesRef
+      .where('themeid', '==', randNum)
+      .get()
+      .then((res) => {
+        res.forEach((doc) => {
+          console.log('success : ' + `${doc.id} => ${doc.data()}`)
+          const json = JSON.stringify(doc.data())
+          const obj = JSON.parse(json)
+          console.log(`JSON:${json},${obj.theme},${obj.themeid}`)
+          commit('addTheme', doc.data())
+          commit('setThemeName', obj.theme)
+          commit('setThemeId', obj.themeid)
         })
       })
       .catch((error) => {
@@ -48,10 +75,5 @@ export const actions = {
       .catch(function (error) {
         console.error('Error adding document: ', error)
       })
-  },
-}
-export const getters = {
-  getThemes(state) {
-    return state.themes
   },
 }

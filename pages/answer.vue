@@ -1,16 +1,14 @@
 <template>
   <div class="container">
     <div v-if="done == false">
-      <span>
-        <!-- {{ randTheme.theme }} -->
-        <!-- {{ themes }} -->
-        {{ randomTheme }}
+      <span v-if="$store.state.answer.theme">
+        {{ themeName }}
       </span>
       <input v-model="answer" />
       <button @click="toggle">決定</button>
     </div>
     <div v-else>
-      <h2></h2>
+      <h2>{{ themeName }}</h2>
       <hr />
       <p>あなたの回答: {{ answer }}</p>
       <nuxt-link to="/">Top Page</nuxt-link>
@@ -24,22 +22,15 @@ export default {
     return {
       answer: '',
       done: false,
-      themeMaxNum: 3,
     }
   },
   computed: {
-    themes() {
-      return this.$store.state.answer.themes
-    },
-    randomTheme() {
-      const num = Math.floor(Math.random() * this.themeMaxNum)
-      const theme = this.$store.state.answer.themes
-      return theme[num]
+    themeName() {
+      return this.$store.state.answer.themeName
     },
   },
   created() {
-    // this.$store.dispatch('answer/init')
-    this.$store.dispatch('answer/fetchThemes')
+    this.$store.dispatch('answer/fetchRandomTheme')
   },
   methods: {
     toggle() {
