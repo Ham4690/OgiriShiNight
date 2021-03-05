@@ -4,8 +4,8 @@
       <span v-if="$store.state.answer.theme">
         {{ themeName }}
       </span>
-      <input v-model="answer" />
-      <button @click="toggle">決定</button>
+      <input v-model="answer" placeholder="Please your answer" />
+      <button @click="checkInput">決定</button>
     </div>
     <div v-else>
       <h2>{{ themeName }}</h2>
@@ -33,8 +33,15 @@ export default {
     this.$store.dispatch('answer/fetchRandomTheme')
   },
   methods: {
-    toggle() {
-      this.done = true
+    checkInput() {
+      if (!this.answer) {
+        console.log('empty')
+      } else {
+        const check = window.confirm('この回答でよろしいですか?')
+        if (check) {
+          this.done = true
+        }
+      }
     },
   },
 }
