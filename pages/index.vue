@@ -68,13 +68,14 @@
           </template>
         </b-modal>
       </div>
+      <p>{{ value }}</p>
     </div>
   </div>
 </template>
 
 <script>
-// import LoginModal from '~/components/LoginModal'
 import firebase from 'firebase'
+import { mapGetters } from 'vuex'
 import { firestore } from '~/plugins/firebase.js'
 
 export default {
@@ -90,6 +91,9 @@ export default {
       },
       roomId: '',
     }
+  },
+  computed: {
+    ...mapGetters({ value: 'login/value' }),
   },
   mounted() {
     firebase.auth().onAuthStateChanged((user) => (this.isAuth = !!user))
