@@ -6,7 +6,9 @@
 
       <div v-if="isAuth">
         <nuxt-link v-if="isAuth" to="/answer" class="anslink">
-          <b-button variant="outline-danger"> play </b-button>
+          <b-button style="margin: 10px" variant="outline-danger">
+            play
+          </b-button>
         </nuxt-link>
       </div>
 
