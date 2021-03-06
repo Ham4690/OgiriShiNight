@@ -50,9 +50,8 @@ export const actions = {
       .then((res) => {
         res.forEach((doc) => {
           console.log('success : ' + `${doc.id} => ${doc.data()}`)
-          const json = JSON.stringify(doc.data())
-          const obj = JSON.parse(json)
-          console.log(`JSON:${json},${obj.theme},${obj.themeid}`)
+          const obj = doc.data()
+          console.log(`JSON:${obj},${obj.theme},${obj.themeid}`)
           commit('addTheme', doc.data())
           commit('setThemeName', obj.theme)
           commit('setThemeId', obj.themeid)
