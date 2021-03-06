@@ -80,7 +80,7 @@
 </template>
 
 <script>
-import { mapGetters } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'HomePage',
@@ -91,9 +91,9 @@ export default {
     }
   },
   computed: {
-    ...mapGetters({
-      user: 'login/user',
-      isAuth: 'login/isAuth',
+    ...mapState({
+      user: (state) => state.login.user,
+      isAuth: (state) => state.login.isAuth,
     }),
   },
   mounted() {
@@ -110,6 +110,10 @@ export default {
       this.$store.dispatch('login/signOut')
     },
     toRoom() {
+      this.$store.dispatch('room/createRoom', {
+        roomId: this.roomId,
+        user: this.user,
+      })
       const roomUrl = '/rooms/' + this.roomId
       this.$router.push(roomUrl)
     },

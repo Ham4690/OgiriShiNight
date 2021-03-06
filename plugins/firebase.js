@@ -14,7 +14,3 @@ if (!firebase.apps.length) {
 }
 
 export default firebase
-
-// import * as say from "~/plugins/firebase.js";
-export const firestore = firebase.firestore()
-export const storage = firebase.storage()
