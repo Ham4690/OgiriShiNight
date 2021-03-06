@@ -9,7 +9,7 @@
     </b-button>
 
     <b-row class="usersIconDisplayArea">
-      <b-col v-for="user of users" :key="user.name" class="userIconArea">
+      <b-col v-for="user in users" :key="user.name" class="userIconArea">
         <img
           src="~/assets/userIconSample.png"
           style="border-radius: 50%"
@@ -89,8 +89,9 @@ export default {
       } else {
         const check = window.confirm('この回答でよろしいですか?')
         if (check) {
+          const resultUrl = '/rooms/' + this.roomId + '/result'
           window.alert('ok')
-          // this.done = true
+          this.$router.push(resultUrl)
         }
       }
     },
@@ -105,6 +106,9 @@ export default {
 </script>
 
 <style>
+.themeArea {
+  text-align: center;
+}
 .usersIconDisplayArea {
   margin-top: 10px;
 }
