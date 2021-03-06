@@ -1,22 +1,16 @@
 import firebase from '@/plugins/firebase'
 const roomsRef = firebase.firestore().collection('rooms')
+const roomObjInit = {
+  roomId: '',
+  users: [{}, {}, {}, {}],
+  answer: ['', '', '', ''],
+  isEmpty: false,
+  theme: '',
+  points: [0, 0, 0, 0],
+}
 
 export const state = () => ({
-  roomId: 0,
-  room: {
-    users: [
-      {
-        uid: '',
-        displayName: '',
-        photoURL: '',
-        userNum: 0,
-      },
-    ],
-    answer: [],
-    isEmpty: true,
-    theme: '',
-    points: [],
-  },
+  roomObj: roomObjInit,
 })
 
 export const mutations = {
@@ -24,21 +18,25 @@ export const mutations = {
     state.roomId = roomId
   },
   pushUser(state, user) {
-    state.room.users.push(user)
+    state.roomObj.users.push(user)
+  },
+  setIsEmpty(state, isEmpty) {
+    state.roomObj.isEmpty = isEmpty
+  },
+  clearRoomObj(state) {
+    state.roomObj = roomObjInit
   },
 }
 
 export const actions = {
-  createRoom({ commit }, { roomId, user }) {
-    console.log(user)
+  createRoom({ commit, state }, { roomId, user }) {
     roomsRef
       .doc(roomId)
       .set({
         answer: ['', '', '', ''],
-        isEmpty: false,
+        isEmpty: true,
         points: [0, 0, 0, 0],
         theme: '',
-        playerNum: 1,
       })
       .then(() => {
         console.log('Document successfully written!')
@@ -53,7 +51,7 @@ export const actions = {
       .set({
         displayName: user.displayName,
         photoURL: user.photoURL,
-        userNumm: 0,
+        userNum: 0,
       })
       .then(() => {
         console.log('Document successfully written!')
@@ -62,41 +60,98 @@ export const actions = {
         console.error('Error writing document: ', error)
       })
     commit('setRoomId', roomId)
+    commit('clearRoomObj')
+    commit('pushUser', user)
+    commit('setIsEmpty', true)
+    // console.log(state.roomObj)
   },
-  searchRoom(roomId) {
-    roomsRef
+  async getIsEmpty({ commit }, { roomId }) {
+    console.log(roomId)
+    await roomsRef
       .doc(roomId)
       .get()
       .then((doc) => {
-        if (!doc.exists) {
-          return doc.data().playerNum
+        if (doc.exists) {
+          const roomData = doc.data()
+          commit('setIsEmpty', roomData.isEmpty)
+        } else {
+          console.log('No such roomId!')
         }
-        console.log('No such document!')
-        alert('にゃにゃ？！\nそのIDの部屋は存在しないにゃ')
       })
       .catch((error) => {
         console.log('Error getting document:', error)
       })
-    return 0
   },
-  enterRoom({ commit }, { roomId, user, playerNum }) {
-    roomsRef.doc(roomId).update({ playerNum: playerNum + 1 })
-    roomsRef
+  async joinRoom({ commit, state }, { roomId, user }) {
+    let userNum = 0
+    let isEmpty = true
+    // 参加済みのユーザー追加
+    commit('clearRoomObj')
+    console.log(state.roomObj)
+    await roomsRef
+      .doc(roomId)
+      .collection('users')
+      .get()
+      .then((querySnapshot) => {
+        querySnapshot.forEach((doc) => {
+          const userData = doc.data()
+          const user = {
+            uid: doc.id,
+            displayName: userData.displayName,
+            photoURL: userData.photoURL,
+            userNum: userData.userNum,
+          }
+          commit('pushUser', user)
+          console.log('1')
+        })
+      })
+      .catch((error) => {
+        console.log('Error getting documents: ', error)
+      })
+    // userNum確認
+    await roomsRef
+      .doc(roomId)
+      .collection('users')
+      .orderBy('userNum', 'desc')
+      .limit(1)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const userData = doc.data()
+          userNum = userData.userNum
+        })
+        console.log('2')
+      })
+    // firestoreのroom.user更新
+    await roomsRef
       .doc(roomId)
       .collection('users')
       .doc(user.uid)
       .set({
         displayName: user.displayName,
         photoURL: user.photoURL,
-        userNum: playerNum + 1,
+        userNum: userNum + 1,
       })
       .then(() => {
+        console.log('3')
         console.log('Document successfully written!')
       })
       .catch((error) => {
         console.error('Error writing document: ', error)
       })
-    commit('pushUser')
+    if (userNum + 1 === 3) {
+      isEmpty = false
+      roomsRef.doc(roomId).update({
+        isEmpty: false,
+      })
+    }
+    console.log('4')
+    commit('pushUser', user)
+    commit('setIsEmpty', isEmpty)
+    // console.log(state.roomObj)
+  },
+  clear({ commit, state }) {
+    commit('clearRoomObj')
   },
 }
 

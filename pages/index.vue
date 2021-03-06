@@ -52,7 +52,7 @@
           <input v-model="roomId" placeholder="部屋番号" />
 
           <template #modal-footer="{ cancel }">
-            <b-button size="sm" variant="danger" @click="toRoom">
+            <b-button size="sm" variant="danger" @click="createRoom">
               作成
             </b-button>
             <b-button size="sm" variant="danger" @click="cancel()">
@@ -66,7 +66,7 @@
           <input v-model="roomId" placeholder="部屋番号" />
 
           <template #modal-footer="{ cancel }">
-            <b-button size="sm" variant="danger" @click="toRoom">
+            <b-button size="sm" variant="danger" @click="joinRoom">
               入室
             </b-button>
             <b-button size="sm" variant="danger" @click="cancel()">
@@ -76,6 +76,7 @@
         </b-modal>
       </div>
     </div>
+    <b-button @click="test"> test </b-button>
   </div>
 </template>
 
@@ -98,6 +99,7 @@ export default {
   },
   mounted() {
     this.$store.dispatch('login/isSignedIn')
+    this.$store.dispatch('room/clear')
   },
   created() {
     this.$store.dispatch('login/signedInPreviously')
@@ -109,13 +111,31 @@ export default {
     signOut() {
       this.$store.dispatch('login/signOut')
     },
-    toRoom() {
+    createRoom() {
       this.$store.dispatch('room/createRoom', {
         roomId: this.roomId,
         user: this.user,
       })
       const roomUrl = '/rooms/' + this.roomId
       this.$router.push(roomUrl)
+    },
+    async joinRoom() {
+      // 部屋があるか
+      // isEmptyがtrueか
+      await this.$store.dispatch('room/getIsEmpty', {
+        roomId: this.roomId,
+      })
+      console.log('empty is ' + `${this.$store.state.room.roomObj.isEmpty}`)
+      if (this.$store.state.room.roomObj.isEmpty === false) {
+        alert('にゃにゃ？！\nそのIDの部屋は存在しないか人数が一杯にゃ')
+      } else {
+        this.$store.dispatch('room/joinRoom', {
+          roomId: this.roomId,
+          user: this.user,
+        })
+        const roomUrl = '/rooms/' + this.roomId
+        this.$router.push(roomUrl)
+      }
     },
   },
 }
@@ -125,7 +145,6 @@ export default {
 .container {
   margin: 0 auto;
   min-height: 100vh;
-  display: flex;
   justify-content: center;
   align-items: center;
   text-align: center;
