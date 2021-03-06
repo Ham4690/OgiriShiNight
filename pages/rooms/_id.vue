@@ -1,10 +1,17 @@
 <template>
   <b-container>
     <p>room ID: {{ roomId }}</p>
+    <countdown v-if="ready" :time="59 * 1000">
+      <template slot-scope="props">あと：{{ props.seconds }} 秒</template>
+    </countdown>
+    <b-button v-else variant="outline-primary" @click="timerStart">
+      全員揃った場合
+    </b-button>
+
     <b-row class="usersIconDisplayArea">
       <b-col v-for="user of users" :key="user.name" class="userIconArea">
         <img
-          :src="user.iconUrl"
+          src="~/assets/userIconSample.png"
           style="border-radius: 50%"
           border="0"
           width="50"
@@ -34,7 +41,7 @@
 </template>
 
 <script>
-const ICONURL = '/_nuxt/assets/userIconSample.png'
+const ICONURL = '~/assets/userIconSample.png'
 
 export default {
   data() {
@@ -67,6 +74,7 @@ export default {
       yourAnswer: '',
       done: false,
       roomId: this.$route.params.id,
+      ready: false,
     }
   },
   computed: {
@@ -85,6 +93,9 @@ export default {
           // this.done = true
         }
       }
+    },
+    timerStart() {
+      this.ready = true
     },
     returnTop() {
       this.$router.push('/')
