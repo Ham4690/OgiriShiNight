@@ -52,7 +52,9 @@
           <input v-model="roomId" placeholder="部屋番号" />
 
           <template #modal-footer="{ cancel }">
-            <b-button size="sm" variant="danger" to="/answer"> 作成 </b-button>
+            <b-button size="sm" variant="danger" @click="toRoom">
+              作成
+            </b-button>
             <b-button size="sm" variant="danger" @click="cancel()">
               Cancel
             </b-button>
@@ -64,7 +66,9 @@
           <input v-model="roomId" placeholder="部屋番号" />
 
           <template #modal-footer="{ cancel }">
-            <b-button size="sm" variant="danger" to="/answer"> 入室 </b-button>
+            <b-button size="sm" variant="danger" @click="toRoom">
+              入室
+            </b-button>
             <b-button size="sm" variant="danger" @click="cancel()">
               Cancel
             </b-button>
@@ -104,6 +108,10 @@ export default {
     },
     signOut() {
       this.$store.dispatch('login/signOut')
+    },
+    toRoom() {
+      const roomUrl = '/rooms/' + this.roomId
+      this.$router.push(roomUrl)
     },
   },
 }
