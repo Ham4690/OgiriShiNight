@@ -20,7 +20,7 @@
     </div>
     <hr />
     <p>他の回答にそれぞれ自分の中で順位をつけてください</p>
-    <p>(1位:3px, 2位:2pt, 3位:3pt)</p>
+    <p>(1位:3px, 2位:2pt, 3位:1pt)</p>
 
     <div class="usersIconDisplayArea">
       <span v-for="(user, index) in users" :key="user.name" class="userAnsCard">
@@ -65,7 +65,26 @@
     <b-button variant="outline-primary" @click="gradingConfirmation(myNum)"
       >決定</b-button
     >
-    <button @click="returnTop">Topへ戻る</button>
+    <button v-if="done" @click="returnTop">Topへ戻る</button>
+
+    <b-modal id="modal-scoped" size="xl" title="結果発表">
+      <b-row v-for="(result, index) in results" :key="result.userNum">
+        <b-col class="icon">
+          <b-avatar></b-avatar>
+          <h6>{{ result.name }}</h6>
+        </b-col>
+        <b-col class="score">
+          <p>{{ index + 1 }}位: {{ result.point }}pt</p>
+        </b-col>
+        <b-col lg="8" class="answer">
+          <p>
+            {{ result.answer }}
+          </p>
+        </b-col>
+        <br />
+      </b-row>
+      <button @click="returnTop">Topへ戻る</button>
+    </b-modal>
   </div>
 </template>
 
@@ -110,6 +129,7 @@ export default {
       roomId: this.$route.params.id,
       ready: false,
       resultId: this.$route.params.roomId,
+      results: [],
     }
   },
   methods: {
@@ -119,7 +139,7 @@ export default {
     checkPoint(targetNum, btnNum) {
       const prop = 'userEval' + targetNum
       const refData = this.$refs[prop]
-      const p = refData[0].children[0].value
+      const p = refData[0].children[btnNum].value
       this.points[targetNum].point = p
       // console.log(refData[0].children[0])
       // console.log(refData[0].children[0].value)
@@ -128,6 +148,9 @@ export default {
         if (i !== btnNum) {
           refData[0].children[i].checked = false
         }
+      }
+      for (let i = 0; i < 4; i++) {
+        console.log(this.points[i].point)
       }
     },
     gradingConfirmation(myNum) {
@@ -155,8 +178,33 @@ export default {
         window.alert(
           'ok, ここで得点の加算処理を行う(.vueに保存してるpointsをstoreに移す)'
         )
+        this.$bvModal.show('modal-scoped')
+        this.sortResult()
         this.done = true
       }
+    },
+    sortResult() {
+      for (let i = 0; i < 4; i++) {
+        const p = this.points[i].point
+        const n = this.users[i].name
+        const icon = this.users[i].iconsUrl
+        const ans = this.answers[i].answer
+        const obj = {
+          point: p,
+          userNum: i,
+          name: n,
+          iconUrl: icon,
+          answer: ans,
+        }
+        this.results.push(obj)
+      }
+      this.results.sort((a, b) => {
+        if (a.point < b.point) {
+          return 1
+        } else {
+          return -1
+        }
+      })
     },
   },
 }
@@ -197,5 +245,10 @@ export default {
 
 .userAnsCard {
   margin-bottom: 5px;
+}
+
+.col > .icon {
+  vertical-align: middle; /* 「vertical-align」を指定してもテキストは縦方向中央揃いにならない */
+  text-align: center;
 }
 </style>

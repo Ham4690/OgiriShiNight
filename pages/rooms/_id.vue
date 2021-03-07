@@ -10,15 +10,8 @@
 
     <b-row class="usersIconDisplayArea">
       <b-col v-for="user in users" :key="user.name" class="userIconArea">
-        <img
-          src="~/assets/userIconSample.png"
-          style="border-radius: 50%"
-          border="0"
-          width="50"
-          height="50"
-          alt="icon"
-        />
-        <p>{{ user.name }}</p>
+        <b-avatar></b-avatar>
+        <h6>{{ user.name }}</h6>
       </b-col>
     </b-row>
     <div class="themeArea">
