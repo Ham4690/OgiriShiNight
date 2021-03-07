@@ -76,7 +76,6 @@
         </b-modal>
       </div>
     </div>
-    <b-button @click="test"> test </b-button>
   </div>
 </template>
 
@@ -95,11 +94,17 @@ export default {
     ...mapState({
       user: (state) => state.login.user,
       isAuth: (state) => state.login.isAuth,
+      roomObjUsers: (state) => state.room.roomObj.users,
     }),
+  },
+  watch: {
+    roomObjUsers(obj) {
+      const roomUrl = '/rooms/' + this.roomId
+      this.$router.push(roomUrl)
+    },
   },
   mounted() {
     this.$store.dispatch('login/isSignedIn')
-    this.$store.dispatch('room/clear')
   },
   created() {
     this.$store.dispatch('login/signedInPreviously')
@@ -116,8 +121,6 @@ export default {
         roomId: this.roomId,
         user: this.user,
       })
-      const roomUrl = '/rooms/' + this.roomId
-      this.$router.push(roomUrl)
     },
     async joinRoom() {
       // 部屋があるか
@@ -126,15 +129,13 @@ export default {
         roomId: this.roomId,
       })
       console.log('empty is ' + `${this.$store.state.room.roomObj.isEmpty}`)
-      if (this.$store.state.room.roomObj.isEmpty === false) {
-        alert('にゃにゃ？！\nそのIDの部屋は存在しないか人数が一杯にゃ')
-      } else {
+      if (this.$store.state.room.roomObj.isEmpty === true) {
         this.$store.dispatch('room/joinRoom', {
           roomId: this.roomId,
           user: this.user,
         })
-        const roomUrl = '/rooms/' + this.roomId
-        this.$router.push(roomUrl)
+      } else {
+        alert('にゃにゃ？！\nそのIDの部屋は存在しないか人数が一杯にゃ')
       }
     },
   },
