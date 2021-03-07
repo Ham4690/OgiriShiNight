@@ -37,7 +37,7 @@
       <b-button variant="outline-primary" @click="checkInput">決定</b-button>
     </div>
     <button @click="returnTop">Topへ戻る</button>
-    {{ $store.state.room.roomObj.users }}
+    {{ stateRoomObj.users }}
   </b-container>
 </template>
 
@@ -79,8 +79,8 @@ export default {
     }
   },
   computed: {
-    getUsers() {
-      return this.users
+    stateRoomObj() {
+      return this.$store.state.room.roomObj
     },
   },
   created() {},

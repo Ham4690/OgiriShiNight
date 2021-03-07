@@ -94,7 +94,14 @@ export default {
     ...mapState({
       user: (state) => state.login.user,
       isAuth: (state) => state.login.isAuth,
+      roomObjUsers: (state) => state.room.roomObj.users,
     }),
+  },
+  watch: {
+    roomObjUsers(obj) {
+      const roomUrl = '/rooms/' + this.roomId
+      this.$router.push(roomUrl)
+    },
   },
   mounted() {
     this.$store.dispatch('login/isSignedIn')
@@ -114,8 +121,6 @@ export default {
         roomId: this.roomId,
         user: this.user,
       })
-      const roomUrl = '/rooms/' + this.roomId
-      this.$router.push(roomUrl)
     },
     async joinRoom() {
       // 部屋があるか
@@ -131,8 +136,6 @@ export default {
           roomId: this.roomId,
           user: this.user,
         })
-        const roomUrl = '/rooms/' + this.roomId
-        this.$router.push(roomUrl)
       }
     },
   },
