@@ -76,7 +76,6 @@
         </b-modal>
       </div>
     </div>
-    <b-button @click="test"> test </b-button>
   </div>
 </template>
 
@@ -99,7 +98,6 @@ export default {
   },
   mounted() {
     this.$store.dispatch('login/isSignedIn')
-    this.$store.dispatch('room/clear')
   },
   created() {
     this.$store.dispatch('login/signedInPreviously')
