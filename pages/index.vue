@@ -129,13 +129,13 @@ export default {
         roomId: this.roomId,
       })
       console.log('empty is ' + `${this.$store.state.room.roomObj.isEmpty}`)
-      if (this.$store.state.room.roomObj.isEmpty === false) {
-        alert('にゃにゃ？！\nそのIDの部屋は存在しないか人数が一杯にゃ')
-      } else {
+      if (this.$store.state.room.roomObj.isEmpty === true) {
         this.$store.dispatch('room/joinRoom', {
           roomId: this.roomId,
           user: this.user,
         })
+      } else {
+        alert('にゃにゃ？！\nそのIDの部屋は存在しないか人数が一杯にゃ')
       }
     },
   },

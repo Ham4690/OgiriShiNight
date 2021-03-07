@@ -60,11 +60,10 @@ export const actions = {
         console.log('Error getting document:', error)
       })
   },
-  async joinRoom({ state, dispatch }, { roomId, user }) {
+  async joinRoom({ dispatch }, { roomId, user }) {
     // 参加済みのユーザー追加
     dispatch('syncFirestore', { roomId })
     // 参加済みの人数を取得
-    // userNum確認
     let userNum = 0
     await roomsRef
       .doc(roomId)
@@ -90,7 +89,7 @@ export const actions = {
       })
     // commit('pushUser', user)
     // 最大人数に達すればisEmpty更新
-    if (user.userNum === 3) {
+    if (userNum + 1 >= 3) {
       await roomsRef.doc(roomId).update({
         isEmpty: false,
       })
