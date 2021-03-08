@@ -27,7 +27,10 @@
     <hr />
     <!-- 本番動作確認コメントをはずす -->
     <!-- <div> -->
-    <div v-if="stateRoomObj.isEmpty != true">
+    <div v-if="stateRoomObj.isEmpty == true">
+      <h1>参加者が4名集まるまでお待ちください</h1>
+    </div>
+    <div v-else>
       <div class="themeArea">
         <h1>{{ theme }}</h1>
         <hr />
