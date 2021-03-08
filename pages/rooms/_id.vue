@@ -97,12 +97,15 @@ export default {
       const myUid = this.$store.state.login.user.uid
       console.log('myUid: ' + myUid)
       const users = this.$store.state.room.roomObj.users
-      for (let i = 0; i < users.length; i++) {
-        if (users[i].uid === myUid) {
-          return users[i].userNum
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < users.length; j++) {
+          if (users[j].uid === myUid) {
+            return users[j].userNum
+          }
         }
+        // ちょっと待ってからもう一回チャレンジ
+        this.wait(1000)
       }
-      console.log('error not found you uid')
       return 5
     },
   },
@@ -136,6 +139,11 @@ export default {
     },
     returnTop() {
       this.$router.push('/')
+    },
+    wait(ms) {
+      for (let i = 0; i < ms; i++) {
+        console.log('wait now')
+      }
     },
   },
 }
