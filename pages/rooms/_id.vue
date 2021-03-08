@@ -1,25 +1,40 @@
 <template>
   <b-container>
-    <p>room ID: {{ roomId }}</p>
-    <countdown v-if="ready" :time="59 * 1000">
-      <template slot-scope="props">あと：{{ props.seconds }} 秒</template>
+    <div class="roomId">
+      room ID:
+      {{ roomId }}
+    </div>
+    <!-- 確認用コード -->
+    <p>your Num : {{ myNum }}</p>
+    <!-- ここまで -->
+    <countdown v-if="stateRoomObj.isEmpty != true" :time="59 * 1000">
+      <template slot-scope="props">
+        あと：{{ props.seconds }} 秒
+        <span v-if="props.seconds === 0"> {{ timeUp() }} </span>
+      </template>
     </countdown>
-    <b-button v-else variant="outline-primary" @click="timerStart">
-      全員揃った場合
-    </b-button>
 
     <b-row class="usersIconDisplayArea">
-      <b-col v-for="user in users" :key="user.name" class="userIconArea">
-        <b-avatar></b-avatar>
-        <h6>{{ user.name }}</h6>
+      <b-col
+        v-for="user in stateRoomObj.users"
+        :key="user.userNum"
+        class="userIconArea"
+      >
+        <b-avatar :src="user.photoURL"></b-avatar>
+        <h6>{{ user.displayName }}</h6>
       </b-col>
     </b-row>
-    <div class="themeArea">
-      <h1>{{ theme }}</h1>
-      <hr />
+    <hr />
+    <!-- 本番動作確認コメントをはずす -->
+    <!-- <div> -->
+    <div v-if="stateRoomObj.isEmpty == true">
+      <h1>参加者が4名集まるまでお待ちください</h1>
     </div>
-    <div class="answerArea">
-      <p>{{ users[yourNum].name }} your Num : {{ yourNum }}</p>
+    <div v-else>
+      <div class="themeArea">
+        <h1>{{ theme }}</h1>
+        <hr />
+      </div>
       <div>
         <b-form-input
           v-model="yourAnswer"
@@ -29,8 +44,10 @@
       </div>
       <b-button variant="outline-primary" @click="checkInput">決定</b-button>
     </div>
-    <button @click="returnTop">Topへ戻る</button>
+    <!-- まだ退出機能ができてないのでコメントアウト -->
+    <!-- <button @click="returnTop">Topへ戻る</button> -->
     {{ stateRoomObj.users }}
+    {{ stateRoomObj.isEmpty }}
   </b-container>
 </template>
 
@@ -64,28 +81,55 @@ export default {
       ],
       theme: 'こんなお弁当は嫌だ、どんなお弁当？',
       answers: [{ answer: '' }, { answer: '' }, { answer: '' }, { answer: '' }],
-      yourNum: 0,
+      myNum: 0,
       yourAnswer: '',
       done: false,
       roomId: this.$route.params.id,
       ready: false,
+      checked: false,
     }
   },
   computed: {
     stateRoomObj() {
       return this.$store.state.room.roomObj
     },
+    getMyNum() {
+      const myUid = this.$store.state.login.user.uid
+      console.log('myUid: ' + myUid)
+      const users = this.$store.state.room.roomObj.users
+      for (let i = 0; i < 2; i++) {
+        for (let j = 0; j < users.length; j++) {
+          if (users[j].uid === myUid) {
+            return users[j].userNum
+          }
+        }
+        // ちょっと待ってからもう一回チャレンジ
+        this.wait(1000)
+      }
+      return 5
+    },
   },
-  created() {},
+  created() {
+    console.log('created')
+    this.myNum = this.getMyNum
+  },
   methods: {
+    timeUp() {
+      const resultUrl = '/rooms/' + this.myNum + '/result'
+      if (!this.checked) {
+        this.yourAnswer = 'No Answer:時間切れ'
+      }
+      window.alert('time up!!!' + this.yourAnswer)
+      this.$router.push(resultUrl)
+    },
     checkInput() {
       if (!this.yourAnswer) {
         console.log('empty')
       } else {
         const check = window.confirm('この回答でよろしいですか?')
         if (check) {
-          const resultUrl = '/rooms/' + this.roomId + '/result'
-          window.alert('ok')
+          const resultUrl = '/rooms/' + this.myNum + '/result'
+          this.checked = true
           this.$router.push(resultUrl)
         }
       }
@@ -96,11 +140,20 @@ export default {
     returnTop() {
       this.$router.push('/')
     },
+    wait(ms) {
+      for (let i = 0; i < ms; i++) {
+        console.log('wait now')
+      }
+    },
   },
 }
 </script>
 
 <style>
+.roomId {
+  text-align: left;
+}
+
 .themeArea {
   text-align: center;
 }
