@@ -3,7 +3,6 @@ import firebase from '@/plugins/firebase'
 
 const db = firebase.firestore()
 const themesRef = db.collection('themes')
-const themeNum = 4
 
 export const state = () => ({
   themes: [],
@@ -40,18 +39,28 @@ export const actions = {
         console.log('error : ' + error)
       })
   },
-  fetchRandomTheme({ commit }) {
-    const randNum = Math.floor(Math.random() * themeNum)
-    console.log('randNum')
-    console.log(randNum)
-    themesRef
+  async fetchRandomTheme({ commit }) {
+    let themeNum = 0
+    await themesRef
+      .orderBy('themeid', 'desc')
+      .limit(1)
+      .get()
+      .then((snapshot) => {
+        snapshot.forEach((doc) => {
+          const themeData = doc.data()
+          themeNum = themeData.themeid
+        })
+      })
+    const randNum = Math.floor(Math.random() * (themeNum + 1))
+    console.log('randNum', randNum)
+    await themesRef
       .where('themeid', '==', randNum)
       .get()
       .then((res) => {
         res.forEach((doc) => {
           console.log('success : ' + `${doc.id} => ${doc.data()}`)
           const obj = doc.data()
-          console.log(`JSON:${obj},${obj.theme},${obj.themeid}`)
+          // console.log(`JSON:${obj},${obj.theme},${obj.themeid}`)
           commit('addTheme', doc.data())
           commit('setThemeName', obj.theme)
           commit('setThemeId', obj.themeid)

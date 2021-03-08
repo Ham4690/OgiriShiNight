@@ -1,8 +1,8 @@
 <template>
   <div class="container">
     <div class="roomId">
-      result Id--
-      {{ resultId }}
+      your Num:
+      {{ myNum }}
     </div>
 
     <div class="themeArea">
@@ -23,22 +23,26 @@
     <p>(1位:3px, 2位:2pt, 3位:1pt)</p>
 
     <div class="usersIconDisplayArea">
-      <span v-for="(user, index) in users" :key="user.name" class="userAnsCard">
+      <span
+        v-for="(user, index) in stateRoomObj.users"
+        :key="user.userNum"
+        class="userAnsCard"
+      >
         <b-card v-if="index != myNum" class="userAnsInfo">
           <b-col class="userIconArea">
             <b-avatar
               class="userIcon"
-              src="~/assets/userIconSample.png"
+              :src="user.photoURL"
               size="3rem"
             ></b-avatar>
-            <p>{{ user.name }}</p>
+            <p>{{ user.displayName }}</p>
           </b-col>
           <div class="userAns">
             <h3>
               {{ answers[index].answer }}
             </h3>
           </div>
-          <div :ref="`userEval${index}`" class="evaluate">
+          <div :ref="`userEval-${index}`" class="evaluate">
             <input
               type="radio"
               name="point3"
@@ -67,11 +71,13 @@
     >
     <button v-if="done" @click="returnTop">Topへ戻る</button>
 
-    <b-modal id="modal-scoped" size="xl" title="結果発表">
+    <b-modal id="modal-scoped" size="xl" title="結果発表" @ok="returnTop">
       <b-row v-for="(result, index) in results" :key="result.userNum">
         <b-col class="icon">
-          <b-avatar></b-avatar>
-          <h6>{{ result.name }}</h6>
+          <b-avatar
+            :src="stateRoomObj.users[result.userNum].photoURL"
+          ></b-avatar>
+          <h6>{{ stateRoomObj.users[result.userNum].displayName }}</h6>
         </b-col>
         <b-col class="score">
           <p>{{ index + 1 }}位: {{ result.point }}pt</p>
@@ -85,6 +91,8 @@
       </b-row>
       <button @click="returnTop">Topへ戻る</button>
     </b-modal>
+
+    {{ stateRoomObj.users }}
   </div>
 </template>
 
@@ -123,26 +131,34 @@ export default {
         { answer: '占いのグラタンがない' },
       ],
       points: [{ point: 0 }, { point: 0 }, { point: 0 }, { point: 0 }],
-      myNum: 0,
+      myNum: this.$route.params.userNum,
       myAnswer: '',
       done: false,
       roomId: this.$route.params.id,
       ready: false,
-      resultId: this.$route.params.roomId,
+      resultId: this.$route.params.id,
       results: [],
     }
+  },
+  computed: {
+    stateRoomObj() {
+      return this.$store.state.room.roomObj
+    },
   },
   methods: {
     returnTop() {
       this.$router.push('/')
     },
     checkPoint(targetNum, btnNum) {
-      const prop = 'userEval' + targetNum
+      const prop = 'userEval-' + targetNum
       const refData = this.$refs[prop]
       const p = refData[0].children[btnNum].value
       this.points[targetNum].point = p
-      // console.log(refData[0].children[0])
-      // console.log(refData[0].children[0].value)
+      console.log('refData:' + refData)
+      // console.log('refData[0].children[0]:' + refData[0].children[0])
+      // console.log(
+      //   'refData[0].children[0].value:' + refData[0].children[0].value
+      // )
       const userNum = refData[0].children.length
       for (let i = 0; i < userNum; i++) {
         if (i !== btnNum) {
@@ -157,10 +173,10 @@ export default {
       const isNoCheck = (currentValue) => currentValue === false
       let isCorrect = true
       for (let i = 0; i < 4; i++) {
-        if (i !== myNum) {
-          const prop = 'userEval' + i
+        if (i !== parseInt(myNum)) {
+          const prop = 'userEval-' + i
           const refData = this.$refs[prop]
-          console.log(refData)
+          console.log(i + 'refData:' + refData)
           const userNum = refData[0].children.length
           const checkArray = []
           for (let j = 0; j < userNum; j++) {
