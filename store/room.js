@@ -32,6 +32,10 @@ export const mutations = {
     state.roomObj.points = roomObj.poits
     state.roomObj.theme = roomObj.theme
   },
+  setTheme(state, themeName) {
+    console.log(`setThemeName${themeName}`)
+    state.theme = themeName
+  },
 }
 
 export const actions = {
