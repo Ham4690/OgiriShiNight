@@ -1,6 +1,11 @@
 import firebase from '@/plugins/firebase'
 const roomsRef = firebase.firestore().collection('rooms')
-const unknownName = '空き'
+const unknownUser = {
+  displayName: '空き',
+  photoURL: '~/assets/userIconSample.png',
+  userNum: 0,
+  uid: 'ZZZZZ',
+}
 
 export const state = () => ({
   roomObj: {
@@ -30,12 +35,12 @@ export const mutations = {
 }
 
 export const actions = {
-  async createRoom({ commit, dispatch }, { roomId, user }) {
+  async createRoom({ commit, dispatch }, { roomId, themeName, user }) {
     roomsRef.doc(roomId).set({
       answer: ['', '', '', ''],
       isEmpty: true,
       points: [0, 0, 0, 0],
-      theme: '',
+      theme: themeName,
     })
     await roomsRef.doc(roomId).collection('users').doc(user.uid).set({
       displayName: user.displayName,
@@ -65,18 +70,11 @@ export const actions = {
     dispatch('syncFirestore', { roomId })
     // 参加済みの人数を取得
     let userNum = 0
-    await roomsRef
-      .doc(roomId)
-      .collection('users')
-      .orderBy('userNum', 'desc')
-      .limit(1)
-      .get()
-      .then((snapshot) => {
-        snapshot.forEach((doc) => {
-          const userData = doc.data()
-          userNum = userData.userNum
-        })
-      })
+    userNum =
+      Math.max.apply(
+        null,
+        state.roomObj.users.map((o) => o.userNum)
+      ) + 1
     // firestoreに自分のuser情報を挿入
     await roomsRef
       .doc(roomId)
@@ -126,21 +124,13 @@ export const actions = {
           }
         })
         for (let i = count; i < 4; i++) {
-          users.push({
-            displayName: unknownName,
-            photoURL: '~/assets/userIconSample.png',
-            userNum: i,
-            uid: '0',
-          })
+          users.push(unknownUser)
         }
         commit('setUsers', users)
       })
   },
   unsubRoom() {
-    roomsRef
-      .doc(this.roomId)
-      .collection('users')
-      .onSnapshot(() => {})
+    roomsRef.doc(this.roomId).onSnapshot(() => {})
   },
 }
 
