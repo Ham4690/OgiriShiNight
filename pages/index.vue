@@ -45,7 +45,7 @@
         />
       </template>
 
-      <div>
+      <div v-if="isAuth">
         <b-button @click="$bvModal.show('modal-scoped1')">部屋を作る</b-button>
         <b-modal id="modal-scoped1">
           <p class="my-4">部屋番号を入力するにゃ</p>
