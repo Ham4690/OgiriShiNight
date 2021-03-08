@@ -91,11 +91,9 @@ export default {
     }
   },
   computed: {
-    ...mapState({
-      user: (state) => state.login.user,
-      isAuth: (state) => state.login.isAuth,
-      roomObjUsers: (state) => state.room.roomObj.users,
-    }),
+    ...mapState('login', ['user', 'isAuth']),
+    ...mapState({ roomObjUsers: (state) => state.room.roomObj.users }),
+    ...mapState('answer', ['themeName']),
   },
   watch: {
     roomObjUsers(obj) {
@@ -116,10 +114,12 @@ export default {
     signOut() {
       this.$store.dispatch('login/signOut')
     },
-    createRoom() {
+    async createRoom() {
+      await this.$store.dispatch('answer/fetchRandomTheme')
       this.$store.dispatch('room/createRoom', {
         roomId: this.roomId,
         user: this.user,
+        themeName: this.themeName,
       })
     },
     async joinRoom() {
