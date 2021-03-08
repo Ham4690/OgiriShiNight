@@ -2,135 +2,106 @@
   <b-container>
     <div class="roomId">
       room ID:
-      {{ roomId }}
+      {{ roomObj.roomId }}
     </div>
     <!-- 確認用コード -->
-    <p>your Num : {{ myNum }}</p>
+    <p>your Num : {{ myUserNum }}</p>
     <!-- ここまで -->
-    <countdown v-if="stateRoomObj.isEmpty != true" :time="59 * 1000">
-      <template slot-scope="props">
-        あと：{{ props.seconds }} 秒
-        <span v-if="props.seconds === 0"> {{ timeUp() }} </span>
-      </template>
-    </countdown>
+    <template v-if="roomObj.isEmpty != true">
+      <countdown v-if="counting" :time="59 * 1000" @end="timeUp">
+        <template slot-scope="props">
+          あと：{{ props.seconds }} 秒
+          <!-- <span v-if="props.seconds === 0"> {{ timeUp() }} </span> -->
+        </template>
+      </countdown>
+    </template>
 
     <b-row class="usersIconDisplayArea">
       <b-col
-        v-for="user in stateRoomObj.users"
+        v-for="(user, index) in roomObj.users"
         :key="user.userNum"
         class="userIconArea"
       >
         <b-avatar :src="user.photoURL"></b-avatar>
         <h6>{{ user.displayName }}</h6>
+        <template v-if="roomObj.answer[index] !== ''">done!!</template>
       </b-col>
     </b-row>
     <hr />
     <!-- 本番動作確認コメントをはずす -->
     <!-- <div> -->
-    <div v-if="stateRoomObj.isEmpty == true">
+    <template v-if="roomObj.isEmpty == true">
       <h1>参加者が4名集まるまでお待ちください</h1>
-    </div>
-    <div v-else>
+    </template>
+    <template v-else>
       <div class="themeArea">
-        <h1>{{ theme }}</h1>
+        <h1>{{ roomObj.theme }}</h1>
         <hr />
       </div>
       <div>
         <b-form-input
-          v-model="yourAnswer"
+          v-model="myAnswer"
           placeholder="Please your answer"
         ></b-form-input>
-        <div class="mt-2">Value: {{ yourAnswer }}</div>
+        <div class="mt-2">Value: {{ myAnswer }}</div>
       </div>
       <b-button variant="outline-primary" @click="checkInput">決定</b-button>
-    </div>
+    </template>
     <!-- まだ退出機能ができてないのでコメントアウト -->
     <!-- <button @click="returnTop">Topへ戻る</button> -->
-    {{ stateRoomObj.users }}
-    {{ stateRoomObj.isEmpty }}
   </b-container>
 </template>
 
 <script>
-const ICONURL = '~/assets/userIconSample.png'
+import { mapState } from 'vuex'
 
 export default {
   data() {
     return {
-      users: [
-        {
-          name: 'user1',
-          iconUrl: ICONURL,
-          roomJoinNum: 0,
-        },
-        {
-          name: 'user2',
-          iconUrl: ICONURL,
-          roomJoinNum: 1,
-        },
-        {
-          name: 'user3',
-          iconUrl: ICONURL,
-          roomJoinNum: 2,
-        },
-        {
-          name: 'user4',
-          iconUrl: ICONURL,
-          roomJoinNum: 3,
-        },
-      ],
-      theme: 'こんなお弁当は嫌だ、どんなお弁当？',
-      answers: [{ answer: '' }, { answer: '' }, { answer: '' }, { answer: '' }],
-      myNum: 0,
-      yourAnswer: '',
+      myAnswer: '',
       done: false,
-      roomId: this.$route.params.id,
       ready: false,
       checked: false,
+      counting: true,
     }
   },
   computed: {
-    stateRoomObj() {
-      return this.$store.state.room.roomObj
-    },
-    getMyNum() {
-      const myUid = this.$store.state.login.user.uid
-      console.log('myUid: ' + myUid)
-      const users = this.$store.state.room.roomObj.users
-      for (let i = 0; i < 2; i++) {
-        for (let j = 0; j < users.length; j++) {
-          if (users[j].uid === myUid) {
-            return users[j].userNum
-          }
-        }
-        // ちょっと待ってからもう一回チャレンジ
-        this.wait(1000)
+    ...mapState('room', ['roomObj', 'myUserNum']),
+  },
+  watch: {
+    'roomObj.answer'(answer) {
+      // test
+      // if (answer.filter((ans) => ans === '').length === 3) {
+      if (answer.filter((ans) => ans === '').length === 0) {
+        const resultUrl = '/rooms/' + this.myUserNum + '/result'
+        this.$router.push(resultUrl)
       }
-      return 5
     },
   },
   created() {
     console.log('created')
-    this.myNum = this.getMyNum
   },
   methods: {
     timeUp() {
-      const resultUrl = '/rooms/' + this.myNum + '/result'
+      this.counting = false
       if (!this.checked) {
-        this.yourAnswer = 'No Answer:時間切れ'
+        this.myAnswer = 'No Answer:時間切れ'
+        this.$store.dispatch('room/setMyAnswer', {
+          myAnswer: this.myAnswer,
+        })
       }
-      window.alert('time up!!!' + this.yourAnswer)
-      this.$router.push(resultUrl)
+      window.alert('time up!!!' + this.myAnswer)
     },
     checkInput() {
-      if (!this.yourAnswer) {
-        console.log('empty')
+      if (!this.myAnswer) {
+        // console.log('empty')
       } else {
         const check = window.confirm('この回答でよろしいですか?')
         if (check) {
-          const resultUrl = '/rooms/' + this.myNum + '/result'
+          this.$store.dispatch('room/setMyAnswer', {
+            myAnswer: this.myAnswer,
+          })
           this.checked = true
-          this.$router.push(resultUrl)
         }
       }
     },

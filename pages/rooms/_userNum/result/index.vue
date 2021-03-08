@@ -2,44 +2,56 @@
   <div class="container">
     <div class="roomId">
       your Num:
-      {{ myNum }}
+      {{ myUserNum }}
     </div>
 
     <div class="themeArea">
-      <h1>{{ theme }}</h1>
+      <h1>{{ roomObj.theme }}</h1>
       <hr />
     </div>
+
+    <b-row class="usersIconDisplayArea">
+      <b-col
+        v-for="(user, index) in roomObj.users"
+        :key="user.userNum"
+        class="userIconArea"
+      >
+        <b-avatar :src="user.photoURL"></b-avatar>
+        <h6>{{ user.displayName }}</h6>
+        <template v-if="roomObj.scored[index]">done!!</template>
+      </b-col>
+    </b-row>
+    <hr />
 
     <div class="myAnsInfo">
       <h4>あなたの回答</h4>
       <div class="userAns">
         <h3>
-          {{ answers[myNum].answer }}
+          {{ roomObj.answer[myUserNum] }}
         </h3>
       </div>
     </div>
-    <hr />
     <p>他の回答にそれぞれ自分の中で順位をつけてください</p>
     <p>(1位:3px, 2位:2pt, 3位:1pt)</p>
 
     <div class="usersIconDisplayArea">
       <span
-        v-for="(user, index) in stateRoomObj.users"
+        v-for="(user, index) in roomObj.users"
         :key="user.userNum"
         class="userAnsCard"
       >
-        <b-card v-if="index != myNum" class="userAnsInfo">
+        <b-card v-if="index != myUserNum" class="userAnsInfo">
           <b-col class="userIconArea">
-            <b-avatar
+            <!-- <b-avatar
               class="userIcon"
               :src="user.photoURL"
               size="3rem"
             ></b-avatar>
-            <p>{{ user.displayName }}</p>
+            <p>{{ user.displayName }}</p> -->
           </b-col>
           <div class="userAns">
             <h3>
-              {{ answers[index].answer }}
+              {{ roomObj.answer[index] }}
             </h3>
           </div>
           <div :ref="`userEval-${index}`" class="evaluate">
@@ -66,117 +78,93 @@
       </span>
     </div>
 
-    <b-button variant="outline-primary" @click="gradingConfirmation(myNum)"
+    <b-button variant="outline-primary" @click="gradingConfirmation(myUserNum)"
       >決定</b-button
     >
     <button v-if="done" @click="returnTop">Topへ戻る</button>
 
     <b-modal id="modal-scoped" size="xl" title="結果発表" @ok="returnTop">
-      <b-row v-for="(result, index) in results" :key="result.userNum">
+      <b-row v-for="(result, index) in sortedUsers" :key="result.userNum">
         <b-col class="icon">
-          <b-avatar
-            :src="stateRoomObj.users[result.userNum].photoURL"
-          ></b-avatar>
-          <h6>{{ stateRoomObj.users[result.userNum].displayName }}</h6>
+          <b-avatar :src="result.photoURL"></b-avatar>
+          <h6>{{ result.displayName }}</h6>
         </b-col>
         <b-col class="score">
-          <p>{{ index + 1 }}位: {{ result.point }}pt</p>
+          <p>{{ index + 1 }}位: {{ roomObj.points[result.userNum] }}pt</p>
         </b-col>
         <b-col lg="8" class="answer">
           <p>
-            {{ result.answer }}
+            {{ roomObj.answer[result.userNum] }}
           </p>
         </b-col>
         <br />
       </b-row>
       <button @click="returnTop">Topへ戻る</button>
     </b-modal>
-
-    {{ stateRoomObj.users }}
   </div>
 </template>
 
 <script>
-const ICONURL = '~/assets/userIconSample.png'
+import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      users: [
-        {
-          name: 'user1',
-          iconUrl: ICONURL,
-          roomJoinNum: 0,
-        },
-        {
-          name: 'user2',
-          iconUrl: ICONURL,
-          roomJoinNum: 1,
-        },
-        {
-          name: 'user3',
-          iconUrl: ICONURL,
-          roomJoinNum: 2,
-        },
-        {
-          name: 'user4',
-          iconUrl: ICONURL,
-          roomJoinNum: 3,
-        },
-      ],
-      theme: 'こんなお弁当は嫌だ、どんなお弁当？',
-      answers: [
-        { answer: '白米だけ' },
-        { answer: 'のりべん' },
-        { answer: '梅干しが男梅' },
-        { answer: '占いのグラタンがない' },
-      ],
-      points: [{ point: 0 }, { point: 0 }, { point: 0 }, { point: 0 }],
-      myNum: this.$route.params.userNum,
-      myAnswer: '',
       done: false,
-      roomId: this.$route.params.id,
       ready: false,
-      resultId: this.$route.params.id,
-      results: [],
+      points: [0, 0, 0, 0],
+      sortedUsers: [],
     }
   },
   computed: {
-    stateRoomObj() {
+    roomObj() {
       return this.$store.state.room.roomObj
+    },
+    ...mapState('room', ['roomObj', 'myUserNum']),
+  },
+  watch: {
+    'roomObj.scored'(scored) {
+      // test
+      if (scored.filter((bl) => bl === true).length === 4) {
+        // points[]が高い順にuserをソート
+        this.sortedUsers = this.roomObj.users
+        let damy = {}
+        for (let i = 0; i < 4; i++) {
+          for (let j = i; j < 4; j++) {
+            if (this.roomObj.points[i] < this.roomObj.points[j]) {
+              damy = this.sortedUsers[i]
+              this.sortedUsers[i] = this.sortedUsers[j]
+              this.sortedUsers[j] = damy
+            }
+          }
+        }
+        this.$bvModal.show('modal-scoped')
+      }
     },
   },
   methods: {
     returnTop() {
+      this.$store.dispatch('room/unsubRoom')
       this.$router.push('/')
     },
     checkPoint(targetNum, btnNum) {
       const prop = 'userEval-' + targetNum
       const refData = this.$refs[prop]
-      const p = refData[0].children[btnNum].value
-      this.points[targetNum].point = p
-      console.log('refData:' + refData)
-      // console.log('refData[0].children[0]:' + refData[0].children[0])
-      // console.log(
-      //   'refData[0].children[0].value:' + refData[0].children[0].value
-      // )
+      this.points[targetNum] = Number(refData[0].children[btnNum].value) // 1 ~ 3
       const userNum = refData[0].children.length
       for (let i = 0; i < userNum; i++) {
         if (i !== btnNum) {
           refData[0].children[i].checked = false
         }
       }
-      for (let i = 0; i < 4; i++) {
-        console.log(this.points[i].point)
-      }
     },
-    gradingConfirmation(myNum) {
+    gradingConfirmation(myUserNum) {
       const isNoCheck = (currentValue) => currentValue === false
       let isCorrect = true
       for (let i = 0; i < 4; i++) {
-        if (i !== parseInt(myNum)) {
+        if (i !== parseInt(myUserNum)) {
           const prop = 'userEval-' + i
           const refData = this.$refs[prop]
-          console.log(i + 'refData:' + refData)
+          // console.log(i + 'refData:' + refData)
           const userNum = refData[0].children.length
           const checkArray = []
           for (let j = 0; j < userNum; j++) {
@@ -191,36 +179,9 @@ export default {
         }
       }
       if (isCorrect) {
-        window.alert(
-          'ok, ここで得点の加算処理を行う(.vueに保存してるpointsをstoreに移す)'
-        )
-        this.$bvModal.show('modal-scoped')
-        this.sortResult()
-        this.done = true
+        window.alert('ok, みんなが採点し終わるまで待つんだぞ')
+        this.$store.dispatch('room/setPointAndScored', { points: this.points })
       }
-    },
-    sortResult() {
-      for (let i = 0; i < 4; i++) {
-        const p = this.points[i].point
-        const n = this.users[i].name
-        const icon = this.users[i].iconsUrl
-        const ans = this.answers[i].answer
-        const obj = {
-          point: p,
-          userNum: i,
-          name: n,
-          iconUrl: icon,
-          answer: ans,
-        }
-        this.results.push(obj)
-      }
-      this.results.sort((a, b) => {
-        if (a.point < b.point) {
-          return 1
-        } else {
-          return -1
-        }
-      })
     },
   },
 }
