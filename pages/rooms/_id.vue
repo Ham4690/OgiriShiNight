@@ -70,6 +70,8 @@ export default {
   },
   watch: {
     'roomObj.answer'(answer) {
+      // console.log('watch')
+      // console.log(answer.filter((ans) => ans === '').length)
       // test
       // if (answer.filter((ans) => ans === '').length === 3) {
       if (answer.filter((ans) => ans === '').length === 0) {
@@ -90,7 +92,7 @@ export default {
           myAnswer: this.myAnswer,
         })
       }
-      window.alert('time up!!!' + this.myAnswer)
+      // window.alert('time up!!!' + this.myAnswer)
     },
     checkInput() {
       if (!this.myAnswer) {

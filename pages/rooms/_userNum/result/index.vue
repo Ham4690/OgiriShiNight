@@ -99,6 +99,11 @@
         </b-col>
         <br />
       </b-row>
+      <div class="twitter_share">
+        <b-button size="sm" @click="twitterShare"
+          >ツイッターでシェアする</b-button
+        >
+      </div>
       <button @click="returnTop">Topへ戻る</button>
     </b-modal>
   </div>
@@ -183,6 +188,20 @@ export default {
         this.$store.dispatch('room/setPointAndScored', { points: this.points })
       }
     },
+    twitterShare() {
+      // シェアする画面を設定
+      const shareURL =
+        'https://twitter.com/intent/tweet?text=' +
+        '「お題」' +
+        this.roomObj.theme +
+        '「自分の回答」' +
+        this.roomObj.answer[this.myUserNum] +
+        ' %20%23OgiriShiNight' +
+        ' &url=' +
+        'https://ogiri-shi-night.web.app/'
+      // シェア用の画面へ移行
+      location.href = shareURL
+    },
   },
 }
 </script>
@@ -227,5 +246,10 @@ export default {
 .col > .icon {
   vertical-align: middle; /* 「vertical-align」を指定してもテキストは縦方向中央揃いにならない */
   text-align: center;
+}
+
+.twitter_share {
+  max-width: 1000px;
+  margin: auto;
 }
 </style>

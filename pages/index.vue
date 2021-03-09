@@ -60,6 +60,7 @@
             </b-button>
           </template>
         </b-modal>
+
         <b-button @click="$bvModal.show('modal-scoped2')">部屋に入る</b-button>
         <b-modal id="modal-scoped2">
           <p class="my-4">部屋番号を入力するにゃ</p>
