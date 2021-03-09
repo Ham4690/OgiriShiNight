@@ -131,6 +131,11 @@
           <hr />
         </b-col>
       </b-row>
+      <div class="twitter_share">
+        <b-button size="sm" @click="twitterShare"
+          >ツイッターでシェアする</b-button
+        >
+      </div>
       <b-button variant="primary" class="mt-3" block @click="returnTop"
         >Ok</b-button
       >
