@@ -1,32 +1,45 @@
 <template>
-  <b-container>
+  <div class="container">
     <div class="roomId">
       room ID:
       {{ roomObj.roomId }}
     </div>
     <!-- 確認用コード -->
-    <p>your Num : {{ myUserNum }}</p>
+    <!-- <p>your Num : {{ myUserNum }}</p> -->
     <!-- ここまで -->
     <template v-if="roomObj.isEmpty != true">
       <countdown v-if="counting" :time="59 * 1000" @end="timeUp">
-        <template slot-scope="props">
-          あと：{{ props.seconds }} 秒
-          <!-- <span v-if="props.seconds === 0"> {{ timeUp() }} </span> -->
-        </template>
+        <template slot-scope="props"> あと：{{ props.seconds }} 秒 </template>
       </countdown>
     </template>
 
-    <b-row class="usersIconDisplayArea">
-      <b-col
-        v-for="(user, index) in roomObj.users"
-        :key="user.userNum"
-        class="userIconArea"
-      >
-        <b-avatar :src="user.photoURL"></b-avatar>
-        <h6>{{ user.displayName }}</h6>
-        <template v-if="roomObj.answer[index] !== ''">done!!</template>
-      </b-col>
-    </b-row>
+    <div class="usersIconDisplayArea">
+      <b-row>
+        <b-col
+          v-for="(user, index) in roomObj.users"
+          :key="user.userNum"
+          class="userIconArea"
+        >
+          <template v-if="roomObj.answer[index] !== ''">
+            <b-avatar :src="user.photoURL">
+              <template #badge>
+                <b-icon icon="check-circle"></b-icon>
+              </template>
+            </b-avatar>
+          </template>
+          <template v-else>
+            <template v-if="user.photoURL === ''">
+              <b-avatar v-if="index === 1" variant="primary"></b-avatar>
+              <b-avatar v-else-if="index === 2" variant="success"></b-avatar>
+              <b-avatar v-else variant="danger"></b-avatar>
+            </template>
+            <b-avatar v-else :src="user.photoURL"></b-avatar>
+          </template>
+
+          <h6>{{ user.displayName }}</h6>
+        </b-col>
+      </b-row>
+    </div>
     <hr />
     <!-- 本番動作確認コメントをはずす -->
     <!-- <div> -->
@@ -38,18 +51,30 @@
         <h1>{{ roomObj.theme }}</h1>
         <hr />
       </div>
-      <div>
-        <b-form-input
-          v-model="myAnswer"
-          placeholder="Please your answer"
-        ></b-form-input>
-        <div class="mt-2">Value: {{ myAnswer }}</div>
+      <b-form-input
+        v-if="checked == false"
+        v-model="myAnswer"
+        placeholder="Please your answer"
+      ></b-form-input>
+      <div v-else class="mt-2">
+        <h6>あなたの回答</h6>
+        <h2>{{ myAnswer }}</h2>
       </div>
-      <b-button variant="outline-primary" @click="checkInput">決定</b-button>
+      <b-button
+        v-if="checked == false"
+        variant="outline-primary"
+        class="determinationBtn"
+        @click="checkInput"
+        >決定</b-button
+      >
+      <b-modal id="modal-scoped1">
+        <div>modal</div>
+      </b-modal>
     </template>
+
     <!-- まだ退出機能ができてないのでコメントアウト -->
     <!-- <button @click="returnTop">Topへ戻る</button> -->
-  </b-container>
+  </div>
 </template>
 
 <script>
@@ -73,7 +98,10 @@ export default {
       // test
       // if (answer.filter((ans) => ans === '').length === 3) {
       if (answer.filter((ans) => ans === '').length === 0) {
-        const resultUrl = '/rooms/' + this.myUserNum + '/result'
+        // this.sleep(2, () => {
+        //   console.log('1s 経過')
+        // })
+        const resultUrl = '/rooms/' + this.roomObj.roomId + '/result'
         this.$router.push(resultUrl)
       }
     },
@@ -83,26 +111,28 @@ export default {
   },
   methods: {
     timeUp() {
+      console.log('timeUp()')
       this.counting = false
+      this.confirmTimeUpModal()
       if (!this.checked) {
+        console.log('timeUp AnserSet()')
+        this.sleep(this.myUserNum, () => {
+          console.log(this.myUserNum + 'sleep End')
+        })
         this.myAnswer = 'No Answer:時間切れ'
         this.$store.dispatch('room/setMyAnswer', {
           myAnswer: this.myAnswer,
         })
+        console.log('timeUp AnserSetEnd()')
       }
-      window.alert('time up!!!' + this.myAnswer)
+      console.log('timeUp():End')
     },
     checkInput() {
       if (!this.myAnswer) {
         // console.log('empty')
       } else {
-        const check = window.confirm('この回答でよろしいですか?')
-        if (check) {
-          this.$store.dispatch('room/setMyAnswer', {
-            myAnswer: this.myAnswer,
-          })
-          this.checked = true
-        }
+        // 回答の確認okならFireStoreに登録
+        this.confirmAnswerModal()
       }
     },
     timerStart() {
@@ -115,6 +145,56 @@ export default {
       for (let i = 0; i < ms; i++) {
         console.log('wait now')
       }
+    },
+    confirmAnswerModal() {
+      this.$bvModal
+        .msgBoxConfirm('この回答でよろしいですか?')
+        .then((value) => {
+          if (value) {
+            this.$store.dispatch('room/setMyAnswer', {
+              myAnswer: this.myAnswer,
+            })
+            this.checked = true
+          }
+        })
+        .catch((err) => {
+          // An error occurred
+          console.log(err)
+        })
+    },
+    confirmTimeUpModal() {
+      this.$bvModal
+        .msgBoxOk('Time up!', {
+          size: 'md',
+          buttonSize: 'lg',
+          okVariant: 'success',
+          headerClass: 'p-2 border-bottom-0',
+          footerClass: 'p-2 border-top-0 mx-auto',
+          centered: true,
+        })
+        .then((value) => {})
+        .catch((err) => {
+          // An error occurred
+          console.log(err)
+        })
+    },
+    sleep(waitSec, callbackFunc) {
+      console.log('sleep() start')
+      // 経過時間（秒）
+      let spanedSec = 0
+
+      // 1秒間隔で無名関数を実行
+      const id = setInterval(function () {
+        spanedSec++
+        console.log(spanedSec)
+        // 経過時間 >= 待機時間の場合、待機終了。
+        if (spanedSec >= waitSec) {
+          // タイマー停止
+          clearInterval(id)
+          // 完了時、コールバック関数を実行
+          if (callbackFunc) callbackFunc()
+        }
+      }, 500)
     },
   },
 }
@@ -129,7 +209,11 @@ export default {
   text-align: center;
 }
 .usersIconDisplayArea {
-  margin-top: 10px;
+  margin-top: 5px;
+  padding-top: 15px;
+  padding-bottom: 15px;
+  background-color: #f5f7fa;
+  border-radius: 10px;
 }
 
 .userIconArea {
