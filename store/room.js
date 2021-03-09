@@ -108,6 +108,8 @@ export const actions = {
       let roomObj = {}
       roomObj = doc.data()
       roomObj.roomId = doc.id
+      console.log('syncFirestore:' + roomObj.answer)
+
       commit('setRoomObj', roomObj)
       // console.log('Current room: ', doc.data())
     })
@@ -135,8 +137,8 @@ export const actions = {
         })
         for (let i = count; i < 4; i++) {
           users.push({
-            displayName: '空き',
-            photoURL: '~/assets/userIconSample.png',
+            displayName: 'None',
+            photoURL: '',
             userNum: i,
             uid: 'ZZZZZ',
           })
