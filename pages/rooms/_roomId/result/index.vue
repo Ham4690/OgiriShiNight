@@ -271,15 +271,15 @@ export default {
       // シェアする画面を設定
       const shareURL =
         'https://twitter.com/intent/tweet?text=' +
-        '「お題」' +
+        'お題「' +
         this.roomObj.theme +
-        '「自分の回答」' +
+        '」自分の回答「' +
         this.roomObj.answer[this.myUserNum] +
-        ' %20%23OgiriShiNight' +
+        '」 %20%23OgiriShiNight' +
         ' &url=' +
         'https://ogiri-shi-night.web.app/'
       // シェア用の画面へ移行
-      location.href = shareURL
+      open(shareURL, '_blank')
     },
   },
 }

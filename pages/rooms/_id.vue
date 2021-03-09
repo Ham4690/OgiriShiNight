@@ -126,8 +126,8 @@ export default {
           console.log(this.myUserNum + 'sleep End')
         })
         this.myAnswer = '[No Answer]'
-        this.$store.dispatch('room/setMyAnswer', {
-          myAnswer: this.myAnswer,
+        this.$store.dispatch('room/setNoAnswer', {
+          noAnswer: this.myAnswer,
         })
         console.log('timeUp AnserSetEnd()')
       }

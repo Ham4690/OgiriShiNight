@@ -157,6 +157,18 @@ export const actions = {
       answer,
     })
   },
+  setNoAnswer({ state }, { noAnswer }) {
+    const stateAnswer = state.roomObj.answer
+    const answer = stateAnswer.map((ans) => {
+      if (ans === '') {
+        return noAnswer
+      }
+      return ans
+    })
+    roomsRef.doc(state.roomObj.roomId).update({
+      answer,
+    })
+  },
   setPointAndScored({ state }, { points }) {
     const statePoints = state.roomObj.points
     console.log('points', points)
