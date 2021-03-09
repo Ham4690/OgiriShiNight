@@ -116,7 +116,7 @@ export default {
         this.sleep(this.myUserNum, () => {
           console.log(this.myUserNum + 'sleep End')
         })
-        this.myAnswer = 'No Answer:時間切れ'
+        this.myAnswer = '[No Answer]'
         this.$store.dispatch('room/setMyAnswer', {
           myAnswer: this.myAnswer,
         })
@@ -145,7 +145,9 @@ export default {
     },
     confirmAnswerModal() {
       this.$bvModal
-        .msgBoxConfirm('この回答でよろしいですか?')
+        .msgBoxConfirm('この回答でよろしいですか?', {
+          footerClass: 'mx-auto',
+        })
         .then((value) => {
           if (value) {
             this.$store.dispatch('room/setMyAnswer', {
