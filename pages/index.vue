@@ -90,6 +90,25 @@
       >
         signIn
       </b-button>
+      <b-button v-if="isAuth" variant="dark" size="lg" @click="getMyAnswer"
+        >過去の自分の回答</b-button
+      >
+      <b-modal id="modal-my-answer" title="自分の回答" hide-footer>
+        <b-row v-for="myAnswer in answers" :key="myAnswer.userNum">
+          <p>{{ myAnswer.theme }}</p>
+          <p>{{ myAnswer.answer }}</p>
+          <p>{{ myAnswer.createdat }}</p>
+        </b-row>
+        <!-- <template #modal-footer="{ cancel }"> -->
+        <b-button
+          size="sm"
+          variant="danger"
+          @click="hideModal('modal-my-answer')"
+        >
+          戻る
+        </b-button>
+        <!-- </template> -->
+      </b-modal>
       <br />
     </div>
   </div>
@@ -110,6 +129,7 @@ export default {
     ...mapState('login', ['user', 'isAuth']),
     ...mapState({ roomObjUsers: (state) => state.room.roomObj.users }),
     ...mapState('answer', ['themeName']),
+    ...mapState('answers', ['answers']),
   },
   watch: {
     roomObjUsers(obj) {
@@ -132,6 +152,7 @@ export default {
     },
     async createRoom() {
       await this.$store.dispatch('answer/fetchRandomTheme')
+      console.log(this.themeName)
       this.$store.dispatch('room/createRoom', {
         roomId: this.roomId,
         user: this.user,
@@ -156,6 +177,12 @@ export default {
     },
     hideModal(modalName) {
       this.$bvModal.hide(modalName)
+    },
+    getMyAnswer() {
+      this.$store.dispatch('answers/getMyAnswers', {
+        uid: this.user.uid,
+      })
+      this.$bvModal.show('modal-my-answer')
     },
   },
 }

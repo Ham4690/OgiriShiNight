@@ -9,6 +9,7 @@ export const state = () => ({
   theme: [],
   themeName: '',
   themeId: 0,
+  themeDocId: '',
 })
 
 export const mutations = {
@@ -22,6 +23,10 @@ export const mutations = {
   setThemeId(state, themeId) {
     console.log(`setThemeId${themeId}`)
     state.themeId = themeId
+  },
+  setThemeDocId(state, themeDocId) {
+    console.log(`setThemeDocId${themeDocId}`)
+    state.themeDocId = themeDocId
   },
 }
 
@@ -64,6 +69,7 @@ export const actions = {
           commit('addTheme', doc.data())
           commit('setThemeName', obj.theme)
           commit('setThemeId', obj.themeid)
+          commit('setThemeDocId', doc.id)
         })
       })
       .catch((error) => {
@@ -83,5 +89,10 @@ export const actions = {
       .catch(function (error) {
         console.error('Error adding document: ', error)
       })
+  },
+  async getThemeDocId({ commit }, obj) {
+    console.log('obj.theme', obj.theme)
+    const querySnapshot = await themesRef.where('theme', '==', obj.theme).get()
+    commit('setThemeDocId', querySnapshot.docs[0].id)
   },
 }

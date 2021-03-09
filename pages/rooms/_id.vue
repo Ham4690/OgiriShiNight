@@ -89,9 +89,13 @@ export default {
   },
   computed: {
     ...mapState('room', ['roomObj', 'myUserNum']),
+    ...mapState('answer', ['themeDocId']),
+    ...mapState('login', ['user']),
   },
   watch: {
     'roomObj.answer'(answer) {
+      // console.log('watch')
+      // console.log(answer.filter((ans) => ans === '').length)
       // test
       // if (answer.filter((ans) => ans === '').length === 3) {
       if (answer.filter((ans) => ans === '').length === 0) {
@@ -105,6 +109,11 @@ export default {
   },
   created() {
     console.log('created')
+  },
+  mounted() {
+    this.$store.dispatch('answer/getThemeDocId', {
+      theme: this.roomObj.theme,
+    })
   },
   methods: {
     timeUp() {
@@ -152,6 +161,11 @@ export default {
           if (value) {
             this.$store.dispatch('room/setMyAnswer', {
               myAnswer: this.myAnswer,
+            })
+            this.$store.dispatch('answers/setMyAnswer', {
+              themeid: this.themeDocId,
+              uid: this.user.uid,
+              answer: this.myAnswer,
             })
             this.checked = true
           }
