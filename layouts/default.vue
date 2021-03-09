@@ -5,6 +5,10 @@
 </template>
 
 <style>
+* {
+  color: 454545;
+}
+
 html {
   font-family: 'Source Sans Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI',
     Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -45,11 +49,18 @@ html {
   color: #35495e;
   text-decoration: none;
   padding: 10px 30px;
-  margin-left: 15px;
 }
 
 .button--grey:hover {
   color: #fff;
   background-color: #35495e;
+}
+
+.determinationBtn {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.modal-body {
+  text-align: center;
 }
 </style>

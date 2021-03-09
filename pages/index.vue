@@ -3,79 +3,94 @@
   <div class="container">
     <div>
       <h1 class="title">ogiri-shi-night</h1>
+      <hr />
 
-      <div v-if="isAuth">
+      <!-- <div v-if="isAuth">
         <nuxt-link v-if="isAuth" to="/answer" class="anslink">
-          <b-button style="margin: 10px" variant="outline-danger">
+          <b-button style="margin: 10px" variant="danger" size="lg">
             play
           </b-button>
         </nuxt-link>
+      </div> -->
+
+      <template v-if="user.photoURL">
+        <b-avatar :src="user.photoURL" class="mt-4" size="6rem"> </b-avatar>
+      </template>
+
+      <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
+      <h3 v-else>Who are you?</h3>
+
+      <div v-if="isAuth">
+        <b-button
+          variant="dark"
+          size="lg"
+          @click="$bvModal.show('modal-scoped1')"
+          >部屋を作る</b-button
+        >
+        <b-modal id="modal-scoped1" title="部屋を作る" hide-footer>
+          <p class="my-4">部屋番号を入力するにゃ</p>
+          <input v-model="roomId" placeholder="部屋番号" />
+
+          <!-- <template #modal-footer="{ cancel }"> -->
+          <b-button size="sm" variant="danger" @click="createRoom">
+            作成
+          </b-button>
+          <b-button
+            size="sm"
+            variant="danger"
+            @click="hideModal('modal-scoped1')"
+          >
+            Cancel
+          </b-button>
+          <!-- </template> -->
+        </b-modal>
+        <b-button
+          variant="dark"
+          size="lg"
+          @click="$bvModal.show('modal-scoped2')"
+          >部屋に入る</b-button
+        >
+        <b-modal id="modal-scoped2" title="部屋に入る" hide-footer>
+          <p class="my-4">部屋番号を入力するにゃ</p>
+          <input v-model="roomId" placeholder="部屋番号" />
+
+          <!-- <template #modal-footer="{ cancel }"> -->
+          <b-button size="sm" variant="danger" @click="joinRoom">
+            入室
+          </b-button>
+          <b-button
+            size="sm"
+            variant="danger"
+            @click="hideModal('modal-scoped2')"
+          >
+            Cancel
+          </b-button>
+          <!-- </template> -->
+        </b-modal>
       </div>
 
-      <button
+      <b-button
         v-if="isAuth"
         href=""
         target="_blank"
         rel="noopener noreferrer"
-        class="button--grey"
+        class="mt-3"
+        size="lg"
+        variant="success"
         @click="signOut"
       >
         signOut
-      </button>
-      <button
+      </b-button>
+      <b-button
         v-else
         target="_blank"
         rel="noopener noreferrer"
-        class="button--green"
+        variant="success"
         @click="signInWithGoogle"
       >
         signIn
-      </button>
-
-      <h3 v-if="isAuth">Hi, {{ user.displayName }}</h3>
-      <h3 v-else>Who are you?</h3>
-      <template v-if="user.photoURL">
-        <img
-          style="border-radius: 50%"
-          border="0"
-          :src="user.photoURL"
-          width="50"
-          height="50"
-          alt="icon"
-        />
-      </template>
-
-      <div v-if="isAuth">
-        <b-button @click="$bvModal.show('modal-scoped1')">部屋を作る</b-button>
-        <b-modal id="modal-scoped1">
-          <p class="my-4">部屋番号を入力するにゃ</p>
-          <input v-model="roomId" placeholder="部屋番号" />
-
-          <template #modal-footer="{ cancel }">
-            <b-button size="sm" variant="danger" @click="createRoom">
-              作成
-            </b-button>
-            <b-button size="sm" variant="danger" @click="cancel()">
-              Cancel
-            </b-button>
-          </template>
-        </b-modal>
-
-        <b-button @click="$bvModal.show('modal-scoped2')">部屋に入る</b-button>
-        <b-modal id="modal-scoped2">
-          <p class="my-4">部屋番号を入力するにゃ</p>
-          <input v-model="roomId" placeholder="部屋番号" />
-
-          <template #modal-footer="{ cancel }">
-            <b-button size="sm" variant="danger" @click="joinRoom">
-              入室
-            </b-button>
-            <b-button size="sm" variant="danger" @click="cancel()">
-              Cancel
-            </b-button>
-          </template>
-        </b-modal>
-      </div>
+      </b-button>
+      <br />
     </div>
   </div>
 </template>
@@ -139,6 +154,9 @@ export default {
         alert('にゃにゃ？！\nそのIDの部屋は存在しないか人数が一杯にゃ')
       }
     },
+    hideModal(modalName) {
+      this.$bvModal.hide(modalName)
+    },
   },
 }
 </script>
@@ -147,10 +165,10 @@ export default {
 .container {
   margin: 0 auto;
   min-height: 100vh;
-  /* display: flex; */
   justify-content: center;
   align-items: center;
   text-align: center;
+  max-width: 100%;
 }
 
 .title {
@@ -159,7 +177,6 @@ export default {
   display: block;
   font-weight: 300;
   font-size: 100px;
-  color: #35495e;
   letter-spacing: 1px;
 }
 
@@ -179,5 +196,9 @@ button {
 .anslink {
   margin-bottom: 15px;
   color: #35495e;
+}
+
+footer {
+  display: inline;
 }
 </style>

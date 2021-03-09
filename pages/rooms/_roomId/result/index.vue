@@ -16,9 +16,15 @@
         :key="user.userNum"
         class="userIconArea"
       >
-        <b-avatar :src="user.photoURL"></b-avatar>
+        <template v-if="roomObj.scored[index]">
+          <b-avatar :src="user.photoURL" badge="ok" badge-variant="success">
+          </b-avatar>
+        </template>
+        <template v-else>
+          <b-avatar :src="user.photoURL"></b-avatar>
+        </template>
+
         <h6>{{ user.displayName }}</h6>
-        <template v-if="roomObj.scored[index]">done!!</template>
       </b-col>
     </b-row>
     <hr />
@@ -34,7 +40,7 @@
     <p>他の回答にそれぞれ自分の中で順位をつけてください</p>
     <p>(1位:3px, 2位:2pt, 3位:1pt)</p>
 
-    <div class="usersIconDisplayArea">
+    <div>
       <span
         v-for="(user, index) in roomObj.users"
         :key="user.userNum"
@@ -54,7 +60,11 @@
               {{ roomObj.answer[index] }}
             </h3>
           </div>
-          <div :ref="`userEval-${index}`" class="evaluate">
+          <div
+            v-if="checked == false"
+            :ref="`userEval-${index}`"
+            class="evaluate"
+          >
             <input
               type="radio"
               name="point3"
@@ -74,37 +84,56 @@
               @click="checkPoint(index, 2)"
             />3位
           </div>
+          <div v-else class="mySelectScored">
+            {{ getSelectUserRank(points[index]) }}
+          </div>
         </b-card>
       </span>
     </div>
 
-    <b-button variant="outline-primary" @click="gradingConfirmation(myUserNum)"
+    <b-button
+      v-if="checked == false"
+      variant="outline-primary"
+      class="determinationBtn"
+      @click="gradingConfirmation(myUserNum)"
       >決定</b-button
     >
-    <button v-if="done" @click="returnTop">Topへ戻る</button>
 
-    <b-modal id="modal-scoped" size="xl" title="結果発表" @ok="returnTop">
+    <b-button
+      v-if="isAllUserScored"
+      variant="primary"
+      class="mt-3 mb-3"
+      block
+      @click="returnTop"
+      >Topページへ戻る</b-button
+    >
+
+    <b-modal
+      id="modal-scoped"
+      size="xl"
+      hide-footer
+      title="結果発表"
+      @ok="returnTop"
+    >
       <b-row v-for="(result, index) in sortedUsers" :key="result.userNum">
         <b-col class="icon">
           <b-avatar :src="result.photoURL"></b-avatar>
           <h6>{{ result.displayName }}</h6>
         </b-col>
         <b-col class="score">
-          <p>{{ index + 1 }}位: {{ roomObj.points[result.userNum] }}pt</p>
+          <div>
+            <h3>{{ index + 1 }}位: {{ roomObj.points[result.userNum] }}pt</h3>
+          </div>
         </b-col>
         <b-col lg="8" class="answer">
-          <p>
-            {{ roomObj.answer[result.userNum] }}
-          </p>
+          <h6>回答</h6>
+          <h4>{{ roomObj.answer[result.userNum] }}</h4>
+          <hr />
         </b-col>
-        <br />
       </b-row>
-      <div class="twitter_share">
-        <b-button size="sm" @click="twitterShare"
-          >ツイッターでシェアする</b-button
-        >
-      </div>
-      <button @click="returnTop">Topへ戻る</button>
+      <b-button variant="primary" class="mt-3" block @click="returnTop"
+        >Ok</b-button
+      >
     </b-modal>
   </div>
 </template>
@@ -114,8 +143,9 @@ import { mapState } from 'vuex'
 export default {
   data() {
     return {
-      done: false,
       ready: false,
+      checked: false,
+      isAllUserScored: false,
       points: [0, 0, 0, 0],
       sortedUsers: [],
     }
@@ -142,6 +172,7 @@ export default {
             }
           }
         }
+        this.isAllUserScored = true
         this.$bvModal.show('modal-scoped')
       }
     },
@@ -177,15 +208,58 @@ export default {
             checkArray.push(check)
           }
           if (checkArray.every(isNoCheck)) {
-            window.alert('順位が入力されていない項目があります.')
+            this.confirmIsEmptyScored()
             isCorrect = false
             break
           }
         }
       }
       if (isCorrect) {
-        window.alert('ok, みんなが採点し終わるまで待つんだぞ')
-        this.$store.dispatch('room/setPointAndScored', { points: this.points })
+        this.confirmScoredModal()
+      }
+    },
+    confirmScoredModal() {
+      this.$bvModal
+        .msgBoxConfirm('この採点結果でよろしいですか?', {
+          footerClass: 'mx-auto',
+        })
+        .then((value) => {
+          if (value) {
+            this.$store.dispatch('room/setPointAndScored', {
+              points: this.points,
+            })
+            this.checked = true
+          }
+        })
+        .catch((err) => {
+          // An error occurred
+          console.log(err)
+        })
+    },
+    confirmIsEmptyScored() {
+      this.$bvModal
+        .msgBoxOk('順位が入力されていない項目があります.', {
+          size: 'md',
+          buttonSize: 'md',
+          okVariant: 'success',
+          headerClass: 'p-2 border-bottom-0',
+          footerClass: 'p-2 border-top-0 mx-auto',
+          centered: true,
+        })
+        .then((value) => {})
+        .catch((err) => {
+          // An error occurred
+          console.log(err)
+        })
+    },
+    getSelectUserRank(pt) {
+      switch (pt) {
+        case 3:
+          return '1位'
+        case 2:
+          return '2位'
+        default:
+          return '3位'
       }
     },
     twitterShare() {
