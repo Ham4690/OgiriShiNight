@@ -21,10 +21,7 @@
           class="userIconArea"
         >
           <template v-if="roomObj.answer[index] !== ''">
-            <b-avatar :src="user.photoURL">
-              <template #badge>
-                <b-icon icon="check-circle"></b-icon>
-              </template>
+            <b-avatar :src="user.photoURL" badge="ok" badge-variant="success">
             </b-avatar>
           </template>
           <template v-else>

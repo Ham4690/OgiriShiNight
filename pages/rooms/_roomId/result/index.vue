@@ -16,9 +16,15 @@
         :key="user.userNum"
         class="userIconArea"
       >
-        <b-avatar :src="user.photoURL"></b-avatar>
+        <template v-if="roomObj.scored[index]">
+          <b-avatar :src="user.photoURL" badge="ok" badge-variant="success">
+          </b-avatar>
+        </template>
+        <template v-else>
+          <b-avatar :src="user.photoURL"></b-avatar>
+        </template>
+
         <h6>{{ user.displayName }}</h6>
-        <template v-if="roomObj.scored[index]">done!!</template>
       </b-col>
     </b-row>
     <hr />
