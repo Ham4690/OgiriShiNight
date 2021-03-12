@@ -125,7 +125,7 @@ export default {
         this.sleep(this.myUserNum, () => {
           console.log(this.myUserNum + 'sleep End')
         })
-        this.myAnswer = '[No Answer]'
+        this.myAnswer = '（無回答）'
         this.$store.dispatch('room/setNoAnswer', {
           noAnswer: this.myAnswer,
         })
