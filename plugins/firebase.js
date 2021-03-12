@@ -11,6 +11,12 @@ if (!firebase.apps.length) {
     appId: process.env.FB_APP_ID,
     measurementId: process.env.FB_MEASUREMENT_ID,
   })
+  // const isEmulating = window.location.hostname === 'localhost'
+  // if (isEmulating) {
+  //   firebase.auth().useEmulator('http://localhost:9099')
+  //   firebase.functions().useEmulator('localhost', 5001)
+  //   firebase.firestore().useEmulator('localhost', 8080)
+  // }
 }
 
 export default firebase

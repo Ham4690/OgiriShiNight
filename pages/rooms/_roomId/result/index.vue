@@ -96,7 +96,6 @@
       v-if="isAllUserScored"
       variant="primary"
       class="mt-3 mb-3"
-      block
       @click="returnTop"
       >Topページへ戻る</b-button
     >
@@ -131,13 +130,13 @@
         </b-col>
       </b-row>
       <div class="twitter_share">
-        <b-button size="sm" @click="twitterShare"
-          >ツイッターでシェアする</b-button
+        <b-button @click="twitterShare">Twitterでシェアする</b-button>
+      </div>
+      <div class="twitter_share">
+        <b-button variant="primary" size="sm" class="mt-3" @click="returnTop"
+          >Ok</b-button
         >
       </div>
-      <b-button variant="primary" class="mt-3" block @click="returnTop"
-        >Ok</b-button
-      >
     </b-modal>
   </div>
 </template>

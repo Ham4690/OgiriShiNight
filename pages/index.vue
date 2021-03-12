@@ -26,7 +26,7 @@
           >誰かと対戦</b-button
         > -->
         <b-button
-          variant="primary"
+          variant="success"
           size="lg"
           @click="$bvModal.show('modal-scoped1')"
           >部屋を作る</b-button
@@ -49,7 +49,7 @@
           <!-- </template> -->
         </b-modal>
         <b-button
-          variant="primary"
+          variant="success"
           size="lg"
           @click="$bvModal.show('modal-scoped2')"
           >部屋に入る</b-button
@@ -72,19 +72,31 @@
           <!-- </template> -->
         </b-modal>
 
-        <b-button v-if="isAuth" variant="success" size="lg" @click="getMyAnswer"
+        <b-button v-if="isAuth" variant="primary" size="lg" @click="getMyAnswer"
           >過去の回答</b-button
         >
-        <b-modal id="modal-my-answer" title="自分の回答" hide-footer>
-          <b-row v-for="myAnswer in answers" :key="myAnswer.userNum">
-            <p>{{ myAnswer.theme }}</p>
-            <p>{{ myAnswer.answer }}</p>
-            <p>{{ myAnswer.createdat }}</p>
-          </b-row>
+        <b-modal id="modal-my-answer" size="lg" title="自分の回答" hide-footer>
+          <div v-for="myAnswer in answers" :key="myAnswer.userNum">
+            <b-card
+              border-variant="primary"
+              header-bg-variant="primary"
+              header-text-variant="white"
+              :header="myAnswer.theme"
+              class="text-center; mt-4"
+            >
+              <b-card-text
+                ><p style="font-size: 200%">{{ myAnswer.answer }}</p>
+                <div style="text-align: right; font-size: 90%">
+                  {{ myAnswer.createdat }}
+                </div>
+              </b-card-text>
+            </b-card>
+          </div>
           <!-- <template #modal-footer="{ cancel }"> -->
           <b-button
             size="sm"
             variant="danger"
+            class="mt-3"
             @click="hideModal('modal-my-answer')"
           >
             戻る
@@ -190,8 +202,8 @@ export default {
       this.$bvModal.show('modal-my-answer')
     },
     randomMatching() {
-      this.$store.dispatch('randomMatching/waiting')
-      this.router.push('randomMatching')
+      this.$store.dispatch('waitingUsers/waiting', { uid: this.user.uid })
+      this.$router.push('randomMatching')
     },
   },
 }

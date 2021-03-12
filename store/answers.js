@@ -30,10 +30,12 @@ export const actions = {
       })
   },
   async getMyAnswers({ commit }, { uid }) {
+    console.log('get')
     const querySnapshot = await answersRef.where('uid', '==', uid).get()
     const getMyAnswers = querySnapshot.docs.map(async (doc) => {
       let theme = ''
       const themeDoc = await themesRef.doc(doc.data().themeid).get()
+      console.log(themeDoc)
       theme = themeDoc.data().theme
       const data = doc.data()
       data.createdat = data.createdat.toDate().toLocaleString('ja')

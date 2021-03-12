@@ -91,8 +91,8 @@ export const actions = {
       })
   },
   async getThemeDocId({ commit }, obj) {
-    console.log('obj.theme', obj.theme)
     const querySnapshot = await themesRef.where('theme', '==', obj.theme).get()
+    console.log(querySnapshot)
     commit('setThemeDocId', querySnapshot.docs[0].id)
   },
 }
