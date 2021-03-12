@@ -38,7 +38,7 @@
       </div>
     </div>
     <p>他の回答にそれぞれ自分の中で順位をつけてください</p>
-    <p>(1位:3px, 2位:2pt, 3位:1pt)</p>
+    <p>(1位:3pt, 2位:2pt, 3位:1pt)</p>
     <div>
       <span
         v-for="(user, index) in roomObj.users"
@@ -52,7 +52,7 @@
                 {{ roomObj.answer[index] }}
               </h3>
             </div>
-            <template>
+            <div>
               <b-form-group>
                 <b-form-radio-group
                   v-if="checked == false"
@@ -75,7 +75,7 @@
                 >
                 </b-form-radio-group>
               </b-form-group>
-            </template>
+            </div>
             <template v-if="checked != false" class="mySelectScored">
               あなたの評価: {{ getSelectUserRank(points[index]) }}
             </template>

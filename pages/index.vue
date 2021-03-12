@@ -2,7 +2,8 @@
 <template>
   <div class="container">
     <div>
-      <h1 class="title">ogiri-shi-night</h1>
+      <div class="titleArea"><h1 class="title">ogiri-shi-night</h1></div>
+
       <hr />
 
       <!-- <div v-if="isAuth">
@@ -21,14 +22,17 @@
       <h3 v-else>Who are you?</h3>
 
       <div v-if="isAuth">
+        <!-- <b-button variant="dark" size="lg" @click="randomMatching"
+          >誰かと対戦</b-button
+        > -->
         <b-button
-          variant="dark"
+          variant="primary"
           size="lg"
           @click="$bvModal.show('modal-scoped1')"
           >部屋を作る</b-button
         >
         <b-modal id="modal-scoped1" title="部屋を作る" hide-footer>
-          <p class="my-4">部屋番号を入力するにゃ</p>
+          <p class="my-4">部屋番号を入力して下さい</p>
           <input v-model="roomId" placeholder="部屋番号" />
 
           <!-- <template #modal-footer="{ cancel }"> -->
@@ -45,13 +49,13 @@
           <!-- </template> -->
         </b-modal>
         <b-button
-          variant="dark"
+          variant="primary"
           size="lg"
           @click="$bvModal.show('modal-scoped2')"
           >部屋に入る</b-button
         >
         <b-modal id="modal-scoped2" title="部屋に入る" hide-footer>
-          <p class="my-4">部屋番号を入力するにゃ</p>
+          <p class="my-4">部屋番号を入力してください</p>
           <input v-model="roomId" placeholder="部屋番号" />
 
           <!-- <template #modal-footer="{ cancel }"> -->
@@ -67,6 +71,26 @@
           </b-button>
           <!-- </template> -->
         </b-modal>
+
+        <b-button v-if="isAuth" variant="success" size="lg" @click="getMyAnswer"
+          >過去の回答</b-button
+        >
+        <b-modal id="modal-my-answer" title="自分の回答" hide-footer>
+          <b-row v-for="myAnswer in answers" :key="myAnswer.userNum">
+            <p>{{ myAnswer.theme }}</p>
+            <p>{{ myAnswer.answer }}</p>
+            <p>{{ myAnswer.createdat }}</p>
+          </b-row>
+          <!-- <template #modal-footer="{ cancel }"> -->
+          <b-button
+            size="sm"
+            variant="danger"
+            @click="hideModal('modal-my-answer')"
+          >
+            戻る
+          </b-button>
+          <!-- </template> -->
+        </b-modal>
       </div>
 
       <b-button
@@ -76,7 +100,7 @@
         rel="noopener noreferrer"
         class="mt-3"
         size="lg"
-        variant="success"
+        variant="dark"
         @click="signOut"
       >
         signOut
@@ -85,30 +109,11 @@
         v-else
         target="_blank"
         rel="noopener noreferrer"
-        variant="success"
+        variant="dark"
         @click="signInWithGoogle"
       >
         signIn
       </b-button>
-      <b-button v-if="isAuth" variant="dark" size="lg" @click="getMyAnswer"
-        >過去の自分の回答</b-button
-      >
-      <b-modal id="modal-my-answer" title="自分の回答" hide-footer>
-        <b-row v-for="myAnswer in answers" :key="myAnswer.userNum">
-          <p>{{ myAnswer.theme }}</p>
-          <p>{{ myAnswer.answer }}</p>
-          <p>{{ myAnswer.createdat }}</p>
-        </b-row>
-        <!-- <template #modal-footer="{ cancel }"> -->
-        <b-button
-          size="sm"
-          variant="danger"
-          @click="hideModal('modal-my-answer')"
-        >
-          戻る
-        </b-button>
-        <!-- </template> -->
-      </b-modal>
       <br />
     </div>
   </div>
@@ -172,7 +177,7 @@ export default {
           user: this.user,
         })
       } else {
-        alert('にゃにゃ？！\nそのIDの部屋は存在しないか人数が一杯にゃ')
+        alert('そのIDの部屋は存在しないか人数が一杯です')
       }
     },
     hideModal(modalName) {
@@ -183,6 +188,10 @@ export default {
         uid: this.user.uid,
       })
       this.$bvModal.show('modal-my-answer')
+    },
+    randomMatching() {
+      this.$store.dispatch('randomMatching/waiting')
+      this.router.push('randomMatching')
     },
   },
 }
@@ -197,14 +206,19 @@ export default {
   text-align: center;
   max-width: 100%;
 }
-
 .title {
-  font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
-    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  /* font-family: 'Quicksand', 'Source Sans Pro', -apple-system, BlinkMacSystemFont,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; */
+  font-family: 'Beon';
   display: block;
   font-weight: 300;
   font-size: 100px;
   letter-spacing: 1px;
+}
+.titleArea {
+  margin-top: 10px;
+  padding-top: 30px;
+  padding-bottom: 30px;
 }
 
 .subtitle {

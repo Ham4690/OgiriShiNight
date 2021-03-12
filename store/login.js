@@ -80,7 +80,6 @@ export const actions = {
           .catch((error) => {
             console.error('Error writing document: ', error)
           })
-        console.log('firestoreに保存したにゃ')
       })
       .catch((error) => {
         console.log(error)
