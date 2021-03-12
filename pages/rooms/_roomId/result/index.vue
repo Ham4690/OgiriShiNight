@@ -45,7 +45,7 @@
         :key="user.userNum"
         class="userAnsCard"
       >
-        <template v-if="roomObj.answer[index] !== '[No Answer]'">
+        <template v-if="roomObj.answer[index] !== '（無回答）'">
           <b-card v-if="index != myUserNum" class="userAnsInfo">
             <div class="userAns">
               <h3>
@@ -208,7 +208,7 @@ export default {
       for (let i = 0; i < 4; i++) {
         if (
           i !== parseInt(myUserNum) &&
-          this.roomObj.answer[i] !== '[No Answer]' &&
+          this.roomObj.answer[i] !== '（無回答）' &&
           this.points[i] === 0
         ) {
           noAnsIndex.push(i)
@@ -272,7 +272,7 @@ export default {
     getValidAnsNum() {
       let cnt = 0
       for (let i = 0; i < 4; i++) {
-        if (i !== this.myUserNum && this.roomObj.answer[i] !== '[No Answer]') {
+        if (i !== this.myUserNum && this.roomObj.answer[i] !== '（無回答）') {
           cnt++
         }
       }
