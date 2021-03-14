@@ -22,9 +22,9 @@
       <h3 v-else>Who are you?</h3>
 
       <div v-if="isAuth">
-        <!-- <b-button variant="dark" size="lg" @click="randomMatching"
+        <b-button variant="dark" size="lg" @click="randomMatching"
           >誰かと対戦</b-button
-        > -->
+        >
         <b-button
           variant="success"
           size="lg"
@@ -202,7 +202,7 @@ export default {
       this.$bvModal.show('modal-my-answer')
     },
     randomMatching() {
-      this.$store.dispatch('waitingUsers/waiting', { uid: this.user.uid })
+      this.$store.dispatch('waitingUsers/waiting', { user: this.user })
       this.$router.push('randomMatching')
     },
   },
@@ -253,5 +253,11 @@ button {
 
 footer {
   display: inline;
+}
+
+.card-body {
+  padding-bottom: 0.5rem;
+  padding-right: 0.5rem;
+  padding-left: 0.5rem;
 }
 </style>

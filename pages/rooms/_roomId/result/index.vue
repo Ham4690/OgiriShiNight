@@ -132,9 +132,10 @@
       <div class="twitter_share">
         <b-button @click="twitterShare">Twitterでシェアする</b-button>
       </div>
+      <hr />
       <div class="twitter_share">
         <b-button variant="primary" size="sm" class="mt-3" @click="returnTop"
-          >Ok</b-button
+          >トップへ戻る</b-button
         >
       </div>
     </b-modal>

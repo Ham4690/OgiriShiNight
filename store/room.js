@@ -43,6 +43,20 @@ export const actions = {
       theme: themeName,
       scored: [false, false, false, false],
     })
+    // 部屋番号が被った時用にusers削除
+    const usersSnapshot = await roomsRef.doc(roomId).collection('users').get()
+    if (usersSnapshot.size !== 0) {
+      const _targetDeleteDocs = usersSnapshot.docs.map(async (doc) => {
+        const targetDeleteDoc = await roomsRef
+          .doc(roomId)
+          .collection('users')
+          .doc(doc.id)
+          .delete()
+        console.log('delete document:', doc.id)
+        return targetDeleteDoc
+      })
+      await Promise.all(_targetDeleteDocs)
+    }
     await roomsRef.doc(roomId).collection('users').doc(user.uid).set({
       displayName: user.displayName,
       photoURL: user.photoURL,
@@ -104,11 +118,12 @@ export const actions = {
     }
   },
   syncFirestore({ commit }, { roomId }) {
+    console.log('roomId:', roomId)
     roomsRef.doc(roomId).onSnapshot((doc) => {
       let roomObj = {}
       roomObj = doc.data()
       roomObj.roomId = doc.id
-      console.log('syncFirestore:' + roomObj.answer)
+      console.log('syncRoom:' + roomObj.answer)
 
       commit('setRoomObj', roomObj)
       // console.log('Current room: ', doc.data())
@@ -146,8 +161,53 @@ export const actions = {
         commit('setUsers', users)
       })
   },
-  unsubRoom() {
-    roomsRef.doc(this.roomId).onSnapshot(() => {})
+  syncRoombyRandom({ commit }, { roomId, myUserNum }) {
+    console.log('roomId:', roomId)
+    roomsRef.doc(roomId).onSnapshot((doc) => {
+      let roomObj = {}
+      roomObj = doc.data()
+      roomObj.roomId = doc.id
+      console.log('syncRoom:' + roomObj.answer)
+
+      commit('setRoomObj', roomObj)
+      // console.log('Current room: ', doc.data())
+    })
+    roomsRef
+      .doc(roomId)
+      .collection('users')
+      .orderBy('userNum', 'asc')
+      .onSnapshot((snapshot) => {
+        let count = 0
+        const users = []
+        snapshot.forEach((doc) => {
+          const userData = doc.data()
+          // console.log('Current users: ', doc.data)
+          users.push({
+            ...doc.data(),
+            uid: doc.id,
+          })
+          count++
+          if (userData.userNum === 3) {
+            roomsRef
+              .doc(this.roomId)
+              .collection('users')
+              .onSnapshot(() => {})
+          }
+        })
+        for (let i = count; i < 4; i++) {
+          users.push({
+            displayName: 'None',
+            photoURL: '',
+            userNum: i,
+            uid: 'ZZZZZ',
+          })
+        }
+        commit('setUsers', users)
+      })
+    commit('setMyUserNum', myUserNum)
+  },
+  unsubRoom({ state }) {
+    roomsRef.doc(state.roomObj.roomId).onSnapshot(() => {})
   },
   setMyAnswer({ state }, { myAnswer }) {
     const answer = state.roomObj.answer

@@ -4,8 +4,35 @@
     <div>
       <h1 class="title">ogiri-shi-night</h1>
       <hr />
-
       <br />
+      <br />
+      <br />
+      <br />
+      <div>
+        <b-spinner
+          style="width: 3rem; height: 3rem"
+          variant="primary"
+          label="Large Spinner"
+        ></b-spinner>
+      </div>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <div>{{ waitingUserObj.waitingNum }}/4人が集まっています。</div>
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <br />
+      <b-button size="sm" variant="danger" class="mt-3" @click="returnTop">
+        戻る
+      </b-button>
     </div>
   </div>
 </template>
@@ -16,18 +43,30 @@ import { mapState } from 'vuex'
 export default {
   name: 'WaitingPage',
   components: {},
-  data() {
-    return {
-      roomId: '',
-    }
+  computed: {
+    ...mapState('waitingUsers', ['waitingUserObj']),
+    ...mapState('login', ['user']),
   },
-  computed: {},
-  watch: {},
+  watch: {
+    'waitingUserObj.status'(status) {
+      if (status === 'enableJoinRoom') {
+        this.$store.dispatch('room/syncRoombyRandom', {
+          roomId: this.waitingUserObj.roomId,
+          myUserNum: this.waitingUserObj.userNum,
+        })
+        setTimeout(() => {
+          const roomUrl = '/rooms/' + this.waitingUserObj.roomId
+          this.$router.push(roomUrl)
+        }, 1000)
+      }
+    },
+  },
   mounted() {},
   created() {},
   methods: {
-    signInWithGoogle() {
-      this.$store.dispatch('login/signInWithGoogle')
+    returnTop() {
+      this.$store.dispatch('waitingUsers/returnTop', { uid: this.user.uid })
+      this.$router.push('/')
     },
   },
 }
