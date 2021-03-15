@@ -8,7 +8,8 @@
       <br />
       <br />
       <br />
-      <div>
+      <div v-if="minuteFlg">参加者が見つかりませんでした。。。</div>
+      <div v-else>
         <b-spinner
           style="width: 3rem; height: 3rem"
           variant="primary"
@@ -22,7 +23,9 @@
       <br />
       <br />
       <br />
-      <div>{{ waitingUserObj.waitingNum }}/4人が集まっています。</div>
+      <div v-if="!minuteFlg">
+        {{ waitingUserObj.waitingNum }}/4人が集まっています。
+      </div>
       <br />
       <br />
       <br />
@@ -43,6 +46,11 @@ import { mapState } from 'vuex'
 export default {
   name: 'WaitingPage',
   components: {},
+  data() {
+    return {
+      minuteFlg: false,
+    }
+  },
   computed: {
     ...mapState('waitingUsers', ['waitingUserObj']),
     ...mapState('login', ['user']),
@@ -62,7 +70,12 @@ export default {
     },
   },
   mounted() {},
-  created() {},
+  created() {
+    setTimeout(() => {
+      this.minuteFlg = true
+      // console.log('minuteFlg = true')
+    }, 60 * 1000)
+  },
   methods: {
     returnTop() {
       this.$store.dispatch('waitingUsers/returnTop', { uid: this.user.uid })
