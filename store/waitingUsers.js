@@ -7,7 +7,7 @@ export const state = () => ({
     photoURL: '',
     status: 'waiting',
     roomId: '',
-    waitingNum: 0,
+    waitingNum: 1,
     userNum: 0,
     updatedat: firebase.firestore.FieldValue.serverTimestamp(),
   },
@@ -26,7 +26,7 @@ export const actions = {
       photoURL: user.photoURL,
       status: 'waiting',
       roomId: '',
-      waitingNum: 0,
+      waitingNum: 1,
       userNum: 0,
       updatedat: firebase.firestore.FieldValue.serverTimestamp(),
     })
